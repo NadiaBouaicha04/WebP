@@ -1,0 +1,143 @@
+.contact-page {
+  font-family: 'Poppins', sans-serif;
+  background: #f9f9f9;
+  margin: 0;
+  padding: 0;
+}
+
+/* Titre */
+.contact-header {
+  text-align: center;
+  padding: 200px 20px;
+  background: linear-gradient(to bottom, #499284, #ffffff);
+}
+.contact-header h1 {
+  font-size: 36px;
+  color: #0a3d62;
+}
+.contact-header p {
+  font-size: 16px;
+  color: #555;
+  margin-top: 10px;
+}
+
+/* Infos rapides */
+.contact-infos {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  padding: 40px 20px;
+  flex-wrap: wrap;
+}
+.info-card {
+  background: #fff;
+  padding: 25px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  width: 220px;
+  transition: transform 0.3s ease;
+}
+.info-card:hover {
+  transform: translateY(-5px);
+}
+.info-card span {
+  font-size: 30px;
+  display: block;
+  margin-bottom: 10px;
+}
+.info-card h3 {
+  font-size: 18px;
+  color: #0a3d62;
+  margin-bottom: 5px;
+}
+
+/* Formulaire + image */
+.contact-form-section {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 40px;
+  padding: 60px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.form-container {
+  flex: 1;
+  background: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+.form-container h2 {
+  margin-bottom: 20px;
+  color: #0a3d62;
+}
+form .form-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+form input, form textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 15px;
+}
+form textarea {
+  min-height: 120px;
+}
+form button {
+  background: #16a085;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 10px;
+}
+form button:hover {
+  background: #138d75;
+}
+.contact-image {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.contact-image img {
+  max-width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* CTA */
+.contact-cta {
+  background: #e9f5ff;
+  text-align: center;
+  padding: 60px 20px;
+  margin-top: 40px;
+}
+.contact-cta h2 {
+  font-size: 28px;
+  margin-bottom: 15px;
+  color: #0a3d62;
+}
+.contact-cta p {
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+.cta-btn {
+  background: #16a085;
+  color: white;
+  text-decoration: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 16px;
+  transition: background 0.3s ease;
+}
+.cta-btn:hover {
+  background: #138d75;
+}

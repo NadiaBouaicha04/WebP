@@ -1,0 +1,120 @@
+/* Fond et style général */
+.estimate-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-size: cover;
+  background-position: center;
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+}
+
+/* Navbar */
+.navbar-logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.navbar-links {
+  list-style: none;
+  display: flex;
+  gap: 20px;
+}
+
+.navbar-links li {
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.navbar-links li:hover {
+  color: #16a085;
+}
+
+/* Titre */
+.estimate-title {
+  font-size: 2.2rem;
+  color: #fff;
+  margin-top: 40px; /* espace depuis le navbar */
+  margin-bottom: 30px;
+  text-shadow: 1px 1px 5px rgba(0,0,0,0.7);
+}
+
+/* Formulaire */
+.estimate-form {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0px 8px 20px rgba(0,0,0,0.3);
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 40px; /* espace entre formulaire et footer */
+}
+
+.estimate-form label {
+  font-weight: 600;
+}
+
+.estimate-form input,
+.estimate-form select {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+.estimate-btn {
+  padding: 12px;
+  background-color: #16a085;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.estimate-btn:disabled {
+  background-color: #999;
+  cursor: not-allowed;
+}
+
+.estimate-btn:hover:not(:disabled) {
+  background-color: #16a085;
+}
+
+/* Résultat / Erreur */
+.prediction-result,
+.prediction-error {
+  margin-top: 20px;
+  padding: 20px;
+  border-radius: 10px;
+  width: 100%;
+  max-width: 500px;
+  text-align: center;
+}
+
+.prediction-result {
+  background-color: rgba(40, 167, 69, 0.85);
+  color: #fff;
+}
+
+.prediction-error {
+  background-color: rgba(220, 53, 69, 0.85);
+  color: #fff;
+}
+
+/* Footer */
+.footer {
+  width: 100%;
+  text-align: center;
+  padding: 15px 0;
+  background-color: rgba(0,0,0,0.7);
+  color: #fff;
+  margin-top: 50px; /* espace depuis le contenu au-dessus */
+  border-radius: 15px 15px 0 0;
+}
