@@ -31,9 +31,9 @@ auth_bp = create_auth_routes(mongo, bcrypt)
 app.register_blueprint(auth_bp, url_prefix="/api/auth")
 
 # Estimate blueprint
-from routes.estimate import create_estimate_routes
-estimate_bp = create_estimate_routes()
-app.register_blueprint(estimate_bp, url_prefix="/api")
+#from routes.estimate import create_estimate_routes
+#estimate_bp = create_estimate_routes()
+#app.register_blueprint(estimate_bp, url_prefix="/api")
 
 if __name__ == "__main__":
     # ⚠️ Sur Windows, debug=True peut causer WinError 10038
