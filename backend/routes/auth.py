@@ -1,58 +1,179 @@
 from flask import Blueprint, request, jsonify
-from models.user import User
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from bson import ObjectId
+import datetime
 
 def create_auth_routes(mongo, bcrypt):
     auth_bp = Blueprint("auth", __name__)
-    user_model = User(mongo, bcrypt)
+    
+    class UserModel:
+        def __init__(self, mongo, bcrypt):
+            self.db = mongo.db
+            self.bcrypt = bcrypt
+            self.users = self.db.users
+        
+        def find_by_email(self, email):
+            try:
+                return self.users.find_one({"email": email})
+            except Exception as e:
+                print(f"Database error in find_by_email: {e}")
+                return None
+        
+        def find_by_id(self, user_id):
+            try:
+                return self.users.find_one({"_id": ObjectId(user_id)})
+            except Exception as e:
+                print(f"Database error in find_by_id: {e}")
+                return None
+        
+        def create_user(self, name, email, dob, phone, city, gender, password):
+            try:
+                hashed_password = self.bcrypt.generate_password_hash(password).decode('utf-8')
+                
+                user_data = {
+                    "name": name,
+                    "email": email,
+                    "dob": dob,
+                    "phone": phone,
+                    "city": city,
+                    "gender": gender,
+                    "password": hashed_password,
+                    "role": "user",  # ← Rôle par défaut
+                    "created_at": datetime.datetime.utcnow()
+                }
+                
+                result = self.users.insert_one(user_data)
+                return result.inserted_id
+            except Exception as e:
+                print(f"Database error in create_user: {e}")
+                return None
+
+    user_model = UserModel(mongo, bcrypt)
 
     # -------------------
-    # Inscription
+    # Route test auth
+    # -------------------
+    @auth_bp.route("/", methods=["GET"])
+    def auth_root():
+        return jsonify({
+            "message": "Auth routes are working!",
+            "available_endpoints": {
+                "register": "POST /register",
+                "login": "POST /login", 
+                "profile": "GET /me (protected)"
+            }
+        }), 200
+
+    # -------------------
+    # Inscription - CORRIGÉE (bien indentée)
     # -------------------
     @auth_bp.route("/register", methods=["POST"])
     def register():
-        data = request.get_json()
-        print("Données reçues :", data)
+        try:
+            if not request.is_json:
+                return jsonify({"error": "Content-Type must be application/json"}), 400
+                
+            data = request.get_json()
+            
+            if not data:
+                return jsonify({"error": "Aucune donnée JSON reçue"}), 400
+            
+            print("📨 Données reçues pour inscription:", data)
 
-        name = data.get("name")
-        email = data.get("email")
-        dob = data.get("dob")
-        phone = data.get("phone")
-        city = data.get("city")
-        gender = data.get("gender")
-        password = data.get("password")
-        confirm_password = data.get("confirm_password")
+            # Extraction des données
+            required_fields = ["name", "email", "dob", "phone", "city", "gender", "password", "confirm_password"]
+            missing_fields = [field for field in required_fields if not data.get(field)]
+            
+            if missing_fields:
+                return jsonify({"error": f"Champs manquants: {', '.join(missing_fields)}"}), 400
 
-        if not all([name, email, dob, phone, city, gender, password, confirm_password]):
-            return jsonify({"error": "Tous les champs sont obligatoires"}), 400
+            name = data.get("name")
+            email = data.get("email")
+            dob = data.get("dob")
+            phone = data.get("phone")
+            city = data.get("city")
+            gender = data.get("gender")
+            password = data.get("password")
+            confirm_password = data.get("confirm_password")
 
-        if password != confirm_password:
-            return jsonify({"error": "Les mots de passe ne correspondent pas"}), 400
+            # Validation
+            if password != confirm_password:
+                return jsonify({"error": "Les mots de passe ne correspondent pas"}), 400
 
-        if user_model.find_by_email(email):
-            return jsonify({"error": "Email déjà utilisé"}), 400
+            if len(password) < 6:
+                return jsonify({"error": "Le mot de passe doit contenir au moins 6 caractères"}), 400
 
-        user_id = user_model.create_user(name, email, dob, phone, city, gender, password)
-        return jsonify({"msg": "Inscription réussie !", "user_id": str(user_id)}), 201
+            # Vérifier si l'email existe
+            if user_model.find_by_email(email):
+                return jsonify({"error": "Email déjà utilisé"}), 400
+
+            # Création utilisateur
+            user_id = user_model.create_user(name, email, dob, phone, city, gender, password)
+            
+            if not user_id:
+                return jsonify({"error": "Erreur lors de la création de l'utilisateur"}), 500
+            
+            return jsonify({
+                "message": "Inscription réussie !", 
+                "user_id": str(user_id)
+            }), 201
+
+        except Exception as e:
+            print(f"❌ Erreur inscription: {e}")
+            return jsonify({"error": "Erreur interne du serveur"}), 500
 
     # -------------------
     # Connexion
     # -------------------
     @auth_bp.route("/login", methods=["POST"])
     def login():
-        data = request.get_json()
-        email = data.get("email")
-        password = data.get("password")
+        try:
+            if not request.is_json:
+                return jsonify({"error": "Content-Type must be application/json"}), 400
+                
+            data = request.get_json()
+            
+            if not data:
+                return jsonify({"error": "Aucune donnée JSON reçue"}), 400
+            
+            email = data.get("email")
+            password = data.get("password")
 
-        if not email or not password:
-            return jsonify({"msg": "Email et mot de passe requis"}), 400
+            if not email or not password:
+                return jsonify({"error": "Email et mot de passe requis"}), 400
 
-        user = user_model.find_by_email(email)
-        if not user or not bcrypt.check_password_hash(user["password"], password):
-            return jsonify({"msg": "Identifiants invalides"}), 401
+            user = user_model.find_by_email(email)
+            if not user:
+                return jsonify({"error": "Email ou mot de passe incorrect"}), 401
 
-        token = create_access_token(identity=str(user["_id"]))
-        return jsonify({"msg": "Connexion réussie", "token": token})
+            # Vérifier le mot de passe
+            if not bcrypt.check_password_hash(user["password"], password):
+                return jsonify({"error": "Email ou mot de passe incorrect"}), 401
+
+            # Récupérer le rôle (par défaut "user" si non défini)
+            user_role = user.get("role", "user")
+            
+            # Déterminer la redirection selon le rôle
+            redirect_to = "/admin" if user_role == "admin" else "/"
+
+            # Créer le token JWT avec le rôle en payload
+            token = create_access_token(identity=str(user["_id"]))
+            
+            return jsonify({
+                "message": "Connexion réussie", 
+                "token": token,
+                "user": {
+                    "id": str(user["_id"]),
+                    "name": user.get("name"),
+                    "email": user.get("email"),
+                    "role": user_role
+                },
+                "redirectTo": redirect_to
+            }), 200
+
+        except Exception as e:
+            print(f"❌ Erreur connexion: {e}")
+            return jsonify({"error": "Erreur interne du serveur"}), 500
 
     # -------------------
     # Profil utilisateur
@@ -60,19 +181,26 @@ def create_auth_routes(mongo, bcrypt):
     @auth_bp.route("/me", methods=["GET"])
     @jwt_required()
     def get_profile():
-        user_id = get_jwt_identity()
-        user = user_model.find_by_id(user_id)
-        if not user:
-            return jsonify({"msg": "Utilisateur introuvable"}), 404
+        try:
+            user_id = get_jwt_identity()
+            user = user_model.find_by_id(user_id)
+            
+            if not user:
+                return jsonify({"error": "Utilisateur introuvable"}), 404
 
-        return jsonify({
-            "user_id": str(user["_id"]),
-            "name": user.get("name"),
-            "email": user.get("email"),
-            "dob": user.get("dob"),
-            "phone": user.get("phone"),
-            "city": user.get("city"),
-            "gender": user.get("gender")
-        })
+            return jsonify({
+                "user_id": str(user["_id"]),
+                "name": user.get("name"),
+                "email": user.get("email"),
+                "dob": user.get("dob"),
+                "phone": user.get("phone"),
+                "city": user.get("city"),
+                "gender": user.get("gender"),
+                "role": user.get("role", "user")
+            }), 200
+            
+        except Exception as e:
+            print(f"❌ Erreur profil: {e}")
+            return jsonify({"error": "Erreur d'authentification"}), 401
 
     return auth_bp

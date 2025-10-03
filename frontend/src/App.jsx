@@ -7,7 +7,6 @@ import Home from "./pages/Home";
 import Apropos from "./pages/Apropos.jsx";
 import Contact from "./pages/Contact";
 import Estimate from "./pages/Estimate";
-import Auth from "./pages/Auth";
 
 import Register from "./pages/Register.jsx";
 import Acheter from "./pages/Acheter.jsx";
@@ -24,7 +23,6 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/Apropos" element={<Apropos />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path="/signin" element={<Auth />} />
         <Route path="/Predictor" element={<Predictor />} />
         <Route path="/Acheter" element={<Acheter />} />
 

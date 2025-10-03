@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+    <div class="sidebar">
+        <h2>M - SoftTech</h2>
+        <ul>
+            <li class="active">🏠 Home</li>
+            <li>👤 User Control</li>
+            <li>📩 Access Request</li>
+            <li>🖥️ Admin</li>
+            <li>⚙️ Settings</li>
+            <li>📞 Support</li>
+            <li>⏻ Quit</li>
+        </ul>
+        <div class="support-box">
+            <img src="https://cdn-icons-png.flaticon.com/512/1087/1087840.png" alt="Support">
+            <p>24/7 Service</p>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="navbar">
+            <h3>Dashboard</h3>
+            <div class="profile">👤 Nadaaaaaa</div>
+        </div>
+        <div class="flex-grow-1 p-4">
+        <!-- Welcome Banner -->
+<div class="welcome-banner">
+    <h1>Bonjour ! </h1>
+    <p>Bienvenue sur ton dashboard, Nadaaaaa.</p>
+</div>
+
+
+        <div class="cards">
+            <div class="card">
+                <h4>Sales</h4>
+                <p>{{ stats.sales }}</p>
+                <span class="green">+5.67% Since Last Month</span>
+            </div>
+            <div class="card">
+                <h4>Purchases</h4>
+                <p>{{ stats.purchases }}</p>
+                <span class="red">-5.64% Since Last Month</span>
+            </div>
+            <div class="card">
+                <h4>Orders</h4>
+                <p>{{ stats.orders }}</p>
+                <span class="green">+5.67% Since Last Month</span>
+            </div>
+        </div>
+
+        <div class="bottom-section">
+            <div class="overview">
+                <h4>Overview</h4>
+                <p>Member Profit: <span class="green">+{{ stats.profit }}</span></p>
+            </div>
+
+            <div class="circle">
+                <h4>Total Sale</h4>
+                <div class="progress">{{ stats.progress }}%</div>
+            </div>
+
+            <div class="activity">
+                <h4>Activity</h4>
+                <ul>
+                    <li><span class="dot yellow"></span> Nouvelle annonce publiée</li>
+                    <li><span class="dot red"></span> Annonce supprimée</li>
+                    <li><span class="dot green"></span> Utilisateur inscrit</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

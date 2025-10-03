@@ -118,7 +118,7 @@ export default function Acheter() {
             <div className="modal-body">
               <p>Vous devez être connecté pour voir les détails de ce bien.</p>
               <div className="modal-buttons">
-                <button className="btn-signin" onClick={() => window.location.href = '/signin'}>
+                <button className="btn-signin" onClick={() => window.location.href = '/login'}>
                   Se connecter
                 </button>
                 <button className="btn-cancel" onClick={closeModal}>
