@@ -2,11 +2,13 @@ import "../assets/Styles/Navbar.css";
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import authService from "../services/auth";
+import { useAuth } from "../Contexts/AuthContext"; // ← AJOUTEZ CET IMPORT
 
 export default function Navbar() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
+  const { user: authUser, logout: authLogout } = useAuth(); // ← UTILISEZ LE CONTEXTE
 
   useEffect(() => {
     checkAuth();
@@ -15,18 +17,21 @@ export default function Navbar() {
   const checkAuth = () => {
     const authenticated = authService.isAuthenticated();
     setIsAuthenticated(authenticated);
+    
+    // CORRECTION : Utilisez authService.getAuth() au lieu de getUser()
     if (authenticated) {
-      setUser(authService.getUser());
+      const authData = authService.getAuth(); // ← CORRECTION ICI
+      setUser(authData.user);
     }
   };
 
   const handleLogout = async () => {
     try {
-      await authService.logout();
+      // Utilisez le contexte pour logout
+      authLogout();
       setIsAuthenticated(false);
       setUser(null);
       navigate("/");
-      window.location.reload();
     } catch (error) {
       console.error("Erreur lors de la déconnexion:", error);
     }
@@ -50,7 +55,7 @@ export default function Navbar() {
         {isAuthenticated ? (
           <div className="user-menu">
             <span className="user-greeting">
-              👋 {user?.name}
+              👋 {user?.name || user?.email}
               {user?.role === 'admin' && ' 👑'}
             </span>
             <Link to="/profile" className="btn-profile">Profil</Link>

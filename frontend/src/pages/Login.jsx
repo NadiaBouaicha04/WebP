@@ -5,6 +5,7 @@ import authService from "../services/auth";
 import Navbar from "../Component/Navbar";
 import Footer from "../Component/Footer";
 import "../assets/Styles/Auth.css";
+import { useAuth } from "../Contexts/AuthContext";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -12,6 +13,7 @@ export default function Login() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,32 +21,67 @@ export default function Login() {
     setMessage("");
     
     try {
+      console.log("🔐 Début de la connexion...", { email });
+      
       const res = await api.post("/auth/login", { 
         email, 
         password 
       });
       
-      // Utiliser le service d'authentification
-      authService.setAuth(res.data.token, res.data.user);
-      
-      setMessage("Connexion réussie ! Redirection...");
-      
-      // Redirection selon le rôle
-      setTimeout(() => {
-        if (res.data.user.role === "admin") {
-          window.location.href = "http://localhost:5000/admin";
-        } else {
-          navigate("/");
-          window.location.reload();
-        }
-      }, 1000);
+      console.log("✅ Réponse API reçue - Status:", res.status);
+      console.log("📦 Données complètes:", res.data);
+
+      // CORRECTION : Vérifier la connexion par le status et la présence du token
+      if (res.status === 200 && res.data.token && res.data.user) {
+        console.log("🔐 Connexion réussie détectée");
+        console.log("🎭 Rôle:", res.data.user.role);
+        console.log("🔑 Token:", res.data.token);
+        
+        // 1. Stocker dans le localStorage via authService
+        authService.setAuth(res.data.token, res.data.user);
+        
+        // 2. METTRE À JOUR LE CONTEXTE GLOBAL
+        console.log("🔄 Mise à jour du contexte Auth...");
+        login(res.data.user);
+        
+        setMessage("Connexion réussie ! Redirection...");
+        
+        console.log("⏱️ Lancement du timer de redirection (1s)...");
+        
+        // REDIRECTION : Admins vers Flask, Users vers React
+        setTimeout(() => {
+          console.log("🔄 EXÉCUTION DE LA REDIRECTION - Timer déclenché");
+          console.log("🎭 Rôle détecté:", res.data.user.role);
+          
+          if (res.data.user.role === "admin") {
+            console.log("🎯 Redirection ADMIN vers Flask");
+            const fullUrl = `http://localhost:5000/admin/dashboard?token=${res.data.token}`;
+            console.log("🌐 URL de redirection:", fullUrl);
+            window.location.href = fullUrl;
+          } else {
+            console.log("🎯 Redirection USER vers React");
+            navigate("/", { replace: true });
+          }
+        }, 1000);
+        
+      } else {
+        console.log("❌ Échec de la connexion - Structure de données incorrecte");
+        setMessage(res.data.error || "Erreur: Structure de réponse inattendue");
+      }
       
     } catch (err) {
+      console.error("💥 Erreur complète lors de la connexion:");
+      console.error("Message:", err.message);
+      console.error("Réponse:", err.response?.data);
+      
       setMessage(
         err.response?.data?.error || 
+        err.response?.data?.message || 
+        err.message ||
         "Erreur de connexion, vérifiez vos identifiants"
       );
     } finally {
+      console.log("🏁 Finalisation du processus de connexion");
       setLoading(false);
     }
   };
@@ -95,6 +132,7 @@ export default function Login() {
                 </p>
               )}
 
+              {/* Comptes de test */}
               <div style={{ 
                 marginTop: "15px", 
                 padding: "10px", 
@@ -106,7 +144,7 @@ export default function Login() {
               }}>
                 <strong>Comptes de test:</strong><br/>
                 • Admin: admin@example.com / admin123<br/>
-                • User: test@example.com / password123
+                • User: user@example.com / password123
               </div>
             </form>
           </div>
