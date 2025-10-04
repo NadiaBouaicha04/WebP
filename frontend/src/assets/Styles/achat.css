@@ -1,144 +1,460 @@
-/* Détails supplémentaires */
-.bien-extra-details {
+/* Container principal */
+.vendre-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  min-height: 80vh;
+}
+
+.vendre-container h2 {
+  text-align: center;
+  color: #3a8d78;
+  font-size: 2.5rem;
+  margin-bottom: 30px;
+  font-weight: 700;
+}
+
+/* Filtres */
+.filters-container {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.search-input {
+  flex: 1;
+  min-width: 250px;
+  padding: 12px 16px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #44a36f;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.filter-select {
+  padding: 12px 16px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 180px;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #44a36f;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+/* Statistiques */
+.biens-stats {
+  text-align: center;
+  margin-bottom: 25px;
+  font-size: 1.1rem;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+/* Liste des biens */
+.biens-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 25px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Carte de bien */
+.bien-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+  border: 1px solid #e9ecef;
+}
+
+.bien-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+/* Image du bien */
+.bien-image {
+  position: relative;
+  height: 200px;
+  background: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.bien-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.bien-card:hover .bien-image img {
+  transform: scale(1.05);
+}
+
+.bien-image-placeholder {
+  font-size: 4rem;
+  color: #bdc3c7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #379480 0%, #105a50 100%);
+  color: white;
+}
+
+/* Contenu de la carte */
+.bien-content {
+  padding: 20px;
+}
+
+.bien-content h3 {
+  color: #2c3e50;
+  font-size: 1.3rem;
+  margin: 0 0 10px 0;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.bien-type {
+  color: #7f8c8d;
+  font-size: 0.9rem;
+  margin: 0 0 12px 0;
+  font-weight: 500;
+}
+
+.bien-location {
+  color: #5f6e7c;
+  font-size: 0.95rem;
+  margin: 0 0 15px 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Détails du bien */
+.bien-details {
   display: flex;
   gap: 15px;
   margin-bottom: 15px;
   flex-wrap: wrap;
 }
 
-.bien-etage, .bien-annee {
+.bien-chambres, .bien-surface, .bien-sdb {
   background: #e8f4fd;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 0.8rem;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
   color: #2980b9;
+  font-weight: 500;
 }
 
-/* Statut */
-.bien-statut {
-  margin: 10px 0;
-  font-size: 0.9rem;
+/* Description */
+.bien-description {
+  color: #5d6d7e;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin: 0 0 15px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.statut-disponible {
+/* Prix */
+.bien-price {
+  font-size: 1.4rem;
+  font-weight: 700;
   color: #27ae60;
-  font-weight: bold;
+  margin: 0 0 15px 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
-.statut-loue {
-  color: #f39c12;
-  font-weight: bold;
+/* Bouton Voir le bien */
+.bien-link {
+  width: 100%;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  text-decoration: none;
+  display: block;
 }
 
-.statut-vendu {
+.bien-link:hover {
+  background: linear-gradient(135deg, #379267, #2e8079);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+/* Aucun bien trouvé */
+.no-bien {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 20px;
+  color: #7f8c8d;
+  font-size: 1.1rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border: 2px dashed #bdc3c7;
+}
+
+/* Loading et erreurs */
+.loading-container, .error-container {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.loading-spinner {
+  font-size: 1.1rem;
+  color: #3498db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.loading-spinner::before {
+  content: "";
+  width: 20px;
+  height: 20px;
+  border: 2px solid #4bd1bb;
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-message {
   color: #e74c3c;
-  font-weight: bold;
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #fdedec;
+  border-radius: 8px;
+  border: 1px solid #fadbd8;
 }
 
-/* Amélioration responsive */
+.retry-button {
+  padding: 12px 24px;
+  background: #66c9a0;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.retry-button:hover {
+  background: #2980b9;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  max-width: 400px;
+  width: 100%;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  animation: modalAppear 0.3s ease;
+}
+
+@keyframes modalAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 25px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.3rem;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #7f8c8d;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.modal-close:hover {
+  background: #f8f9fa;
+  color: #e74c3c;
+}
+
+.modal-body {
+  padding: 25px;
+}
+
+.modal-body p {
+  margin: 0 0 20px 0;
+  color: #5d6d7e;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.btn-signin {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #27ae60, #229954);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex: 1;
+}
+
+.btn-signin:hover {
+  background: linear-gradient(135deg, #229954, #1e8449);
+  transform: translateY(-2px);
+}
+
+.btn-cancel {
+  padding: 12px 24px;
+  background: #95a5a6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex: 1;
+}
+
+.btn-cancel:hover {
+  background: #7f8c8d;
+  transform: translateY(-2px);
+}
+
+/* Responsive */
 @media (max-width: 768px) {
-  .bien-extra-details {
+  .vendre-container {
+    padding: 15px;
+  }
+  
+  .vendre-container h2 {
+    font-size: 2rem;
+  }
+  
+  .filters-container {
     flex-direction: column;
-    gap: 8px;
+    align-items: stretch;
+  }
+  
+  .search-input, .filter-select {
+    min-width: auto;
+  }
+  
+  .biens-list {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .modal-buttons {
+    flex-direction: column;
   }
   
   .bien-details {
     justify-content: flex-start;
+    gap: 10px;
   }
 }
 
-
-/* Console de débogage */
-.debug-console {
-  background: #1e1e1e;
-  color: #00ff00;
-  padding: 15px;
-  border-radius: 5px;
-  margin: 15px 0;
-  font-family: 'Courier New', monospace;
-  font-size: 0.9rem;
-  max-height: 300px;
-  overflow-y: auto;
-  border: 1px solid #333;
-}
-
-.debug-console pre {
-  margin: 0;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-}
-
-/* Bannière de succès */
-.success-banner {
-  background: #d4edda;
-  border: 1px solid #c3e6cb;
-  border-radius: 5px;
-  padding: 15px;
-  margin-bottom: 20px;
-}
-
-.success-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.debug-button {
-  background: #17a2b8;
-  color: white;
-  border: none;
-  padding: 8px 15px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.9rem;
-}
-
-.debug-button:hover {
-  background: #138496;
-}
-
-/* Étapes de solution */
-.solution-steps {
-  background: #e3f2fd;
-  padding: 15px;
-  border-radius: 5px;
-  margin: 15px 0;
-  border-left: 4px solid #2196f3;
-}
-
-.solution-steps ol {
-  margin: 10px 0;
-  padding-left: 20px;
-}
-
-.solution-steps li {
-  margin: 8px 0;
-}
-
-.solution-steps a {
-  color: #1976d2;
-  text-decoration: none;
-  font-weight: bold;
-}
-
-.solution-steps a:hover {
-  text-decoration: underline;
-}
-
-/* Vérifications techniques */
-.technical-checks {
-  background: #fff3cd;
-  padding: 15px;
-  border-radius: 5px;
-  margin: 15px 0;
-  border-left: 4px solid #ffc107;
-}
-
-.technical-checks ul {
-  margin: 10px 0;
-  padding-left: 20px;
-}
-
-.technical-checks li {
-  margin: 5px 0;
+@media (max-width: 480px) {
+  .vendre-container h2 {
+    font-size: 1.7rem;
+  }
+  
+  .bien-content {
+    padding: 15px;
+  }
+  
+  .bien-price {
+    font-size: 1.2rem;
+  }
 }

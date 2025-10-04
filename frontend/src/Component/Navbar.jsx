@@ -55,8 +55,8 @@ export default function Navbar() {
         {isAuthenticated ? (
           <div className="user-menu">
             <span className="user-greeting">
-              👋 {user?.name || user?.email}
-              {user?.role === 'admin' && ' 👑'}
+               {user?.name || user?.email}
+              {user?.role === 'admin' && ' '}
             </span>
             <Link to="/profile" className="btn-profile">Profil</Link>
             <button onClick={handleLogout} className="btn-logout">Déconnexion</button>

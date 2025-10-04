@@ -98,7 +98,7 @@
 }
 
 .btn-profile {
-  background: #007bff;
+  background: #388d71;
   color: white;
   text-decoration: none;
   padding: 8px 15px;
@@ -108,12 +108,12 @@
 }
 
 .btn-profile:hover {
-  background: #0056b3;
+  background: #489e7d;
   color: white;
 }
 
 .btn-logout {
-  background: #dc3545;
+  background: #a3a0a0;
   color: white;
   border: none;
   padding: 8px 15px;

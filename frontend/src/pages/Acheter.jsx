@@ -121,7 +121,7 @@ export default function Acheter() {
         <div className="vendre-container">
           <h2>Acheter un bien</h2>
           <div className="error-container">
-            <div className="error-message">❌ {error}</div>
+            <div className="error-message"> {error}</div>
             <button onClick={() => window.location.reload()} className="retry-button">
               Réessayer
             </button>
@@ -196,7 +196,7 @@ export default function Acheter() {
                 <h3>{bien.titre}</h3>
                 <p className="bien-type">Type : {bien.type}</p>
                 <p className="bien-location">
-                  📍 {bien.ville} 
+                   {bien.ville} 
                   {bien.adresse && ` - ${bien.adresse}`}
                 </p>
                 
