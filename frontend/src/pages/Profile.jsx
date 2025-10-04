@@ -3,9 +3,8 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../Component/Navbar";
 import Footer from "../Component/Footer";
 import api from "../api";
-import "../assets/Styles/Profile.css"; // CSS mis à jour
-
-// ✅ On importe l'image depuis src/assets
+import authService from "../services/auth";
+import "../assets/Styles/Profile.css";
 import profilImage from "../assets/Images/pro.png";
 
 export default function Profile() {
@@ -14,7 +13,7 @@ export default function Profile() {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const token = localStorage.getItem("token");
+      const token = authService.getToken();
       if (!token) {
         navigate("/login");
         return;
@@ -26,10 +25,8 @@ export default function Profile() {
         });
         setUser(res.data);
       } catch (err) {
-        console.log(
-          "Erreur lors du fetch profil :",
-          err.response?.data || err.message
-        );
+        console.log("Erreur lors du fetch profil :", err.response?.data || err.message);
+        authService.clearAuth();
         navigate("/login");
       }
     };
@@ -37,23 +34,31 @@ export default function Profile() {
     fetchProfile();
   }, [navigate]);
 
-  if (!user) return <p>Chargement...</p>;
+  const handleLogout = async () => {
+    await authService.logout();
+    navigate("/");
+  };
+
+  if (!user) return (
+    <>
+      <Navbar />
+      <div className="spacer"></div>
+      <div className="loading-profile">Chargement du profil...</div>
+      <Footer />
+    </>
+  );
 
   return (
     <>
       <Navbar />
-      <br></br>
-      <br></br>
-      <br></br>
-      <br></br>
+      <div className="spacer"></div>
       
-      <div className="spacer"></div> {/* ✅ meilleur que plein de <br> */}
       <div className="profile-page">
         <div className="profile-card">
           <div className="profile-left">
             <img
               className="profile-avatar"
-              src={profilImage} // ✅ image importée correctement
+              src={profilImage}
               alt="Avatar"
             />
             <h3>{user.name}</h3>
@@ -61,6 +66,9 @@ export default function Profile() {
               <p>📞 {user.phone}</p>
               <p>✉️ {user.email}</p>
               <p>📍 {user.city}</p>
+              <p className={`role-badge ${user.role}`}>
+                {user.role === 'admin' ? '👑 Administrateur' : '👤 Utilisateur'}
+              </p>
             </div>
           </div>
 
@@ -72,7 +80,14 @@ export default function Profile() {
               {user.bio ||
                 "Bienvenue sur votre espace personnel. Ici, vous pouvez gérer vos annonces immobilières, consulter vos favoris et suivre vos demandes."}
             </p>
-            <button className="download-cv">Consulter Favoris</button>
+            
+            <div className="profile-actions">
+              <button className="download-cv">Consulter Favoris</button>
+              <button onClick={handleLogout} className="logout-btn-profile">
+                Se déconnecter
+              </button>
+            </div>
+
             <div className="social-icons">
               <a href={user.facebook}>
                 <i className="fab fa-facebook-f"></i>
@@ -90,14 +105,8 @@ export default function Profile() {
           </div>
         </div>
       </div>
+      
       <div className="spacer"></div>
-      <br></br>
-      <br></br>
-      <br></br>
-      <br></br>
-      <br></br>
-      <br></br>
-      <br></br>
       <Footer />
     </>
   );

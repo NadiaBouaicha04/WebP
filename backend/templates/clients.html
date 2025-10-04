@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion Clients - ImmoPro</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/clients.css') }}">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo-section">
+            <h2>🏠 ImmoPro</h2>
+            <div class="user-profile">
+                <div class="avatar">N</div>
+                <div class="user-info">
+                    <span class="username">Nadaaaaaa</span>
+                    <span class="role">Administrateur</span>
+                </div>
+            </div>
+        </div>
+        
+        <ul class="nav-menu">
+            <li class="nav-item" onclick="window.location.href='/admin/dashboard'">📊 Dashboard</li>
+            <li class="nav-item active">👤 Gestion Clients</li>
+            <li class="nav-item" onclick="window.location.href='/admin/properties'">🏘️ Gestion Biens</li>
+            <li class="nav-item" onclick="window.location.href='/admin/appointments'">📅 Rendez-vous</li>
+            <li class="nav-item" onclick="window.location.href='/admin/transactions'">💰 Transactions</li>
+            <li class="nav-item" onclick="window.location.href='/admin/contracts'">📋 Contrats</li>
+            <li class="nav-item" onclick="window.location.href='/admin/agencies'">🏢 Agences</li>
+            <li class="nav-item" onclick="window.location.href='/admin/settings'">⚙️ Paramètres</li>
+            <li class="nav-item logout" onclick="logout()">⏻ Déconnexion</li>
+        </ul>
+
+        <div class="support-box">
+            <div class="support-icon">📞</div>
+            <div class="support-info">
+                <h4>Support 24/7</h4>
+                <p>Contact: +33 1 23 45 67 89</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="navbar">
+            <div class="nav-left">
+                <h1>Gestion des Clients</h1>
+                <p class="welcome-text">Gérez l'ensemble de votre portefeuille clients</p>
+            </div>
+            <div class="nav-right">
+                <div class="search-box">
+                    <input type="text" id="globalSearch" placeholder="Rechercher un client...">
+                    <span></span>
+                </div>
+                <div class="notifications"> <span class="notification-badge">3</span></div>
+                <div class="profile-menu">
+                    <div class="profile-avatar">N</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistiques rapides -->
+        <div class="stats-grid">
+            <div class="stat-card total-clients">
+                <div class="card-header">
+                    <h3>Total Clients</h3>
+                    <div class="card-icon"></div>
+                </div>
+                <div class="card-value" id="totalClients">0</div>
+                <div class="card-trend positive">
+                    <span id="clientsGrowth">+0%</span>
+                    <span>Ce mois</span>
+                </div>
+            </div>
+
+            <div class="stat-card active-clients">
+                <div class="card-header">
+                    <h3>Clients Actifs</h3>
+                    <div class="card-icon"></div>
+                </div>
+                <div class="card-value" id="activeClients">0</div>
+                <div class="card-trend positive">
+                    <span id="activeGrowth">+0%</span>
+                    <span>Actuellement</span>
+                </div>
+            </div>
+
+            <div class="stat-card new-clients">
+                <div class="card-header">
+                    <h3>Nouveaux Clients</h3>
+                    <div class="card-icon"></div>
+                </div>
+                <div class="card-value" id="newClients">0</div>
+                <div class="card-trend positive">
+                    <span id="newGrowth">+0%</span>
+                    <span>Ce mois</span>
+                </div>
+            </div>
+
+            <div class="stat-card conversion-rate">
+                <div class="card-header">
+                    <h3>Taux de Conversion</h3>
+                    <div class="card-icon"></div>
+                </div>
+                <div class="card-value" id="conversionRate">0%</div>
+                <div class="card-trend positive">
+                    <span id="conversionGrowth">+0%</span>
+                    <span>Vs mois dernier</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section de gestion des clients -->
+        <div class="clients-section">
+            <div class="section-header">
+                <h3>Liste des Clients</h3>
+                <button class="add-client-btn" onclick="showAddClientModal()">
+                    <span>+</span> Ajouter un client
+                </button>
+            </div>
+
+            <!-- Filtres et recherche -->
+            <div class="clients-controls">
+                <div class="search-clients">
+                    <input type="text" id="clientSearch" placeholder="Rechercher un client..." onkeyup="filterClients()">
+                    <span></span>
+                </div>
+                <select id="statusFilter" onchange="filterClients()">
+                    <option value="all">Tous les statuts</option>
+                    <option value="active">Actif</option>
+                    <option value="inactive">Inactif</option>
+                    <option value="pending">En attente</option>
+                </select>
+                <select id="typeFilter" onchange="filterClients()">
+                    <option value="all">Tous les types</option>
+                    <option value="buyer">Acheteur</option>
+                    <option value="seller">Vendeur</option>
+                    <option value="tenant">Locataire</option>
+                    <option value="landlord">Propriétaire</option>
+                </select>
+                <button class="export-btn" onclick="exportClients()"> Exporter</button>
+            </div>
+
+            <!-- Tableau des clients -->
+            <div class="clients-table-container">
+                <table class="clients-table">
+                    <thead>
+                        <tr>
+                            <th>
+                                <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+                            </th>
+                            <th onclick="sortClients('name')">Nom & Prénom ▲</th>
+                            <th onclick="sortClients('email')">Email</th>
+                            <th onclick="sortClients('phone')">Téléphone</th>
+                            <th onclick="sortClients('type')">Type</th>
+                            <th onclick="sortClients('status')">Statut</th>
+                            <th onclick="sortClients('createdAt')">Date d'inscription</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clientsTableBody">
+                        <!-- Les clients seront chargés dynamiquement ici -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination">
+                <button id="prevPage" onclick="changePage(-1)">← Précédent</button>
+                <span id="pageInfo">Page 1 sur 1</span>
+                <button id="nextPage" onclick="changePage(1)">Suivant →</button>
+            </div>
+
+            <!-- Actions groupées -->
+            <div class="bulk-actions">
+                <select id="bulkAction">
+                    <option value="">Actions groupées</option>
+                    <option value="activate">Activer</option>
+                    <option value="deactivate">Désactiver</option>
+                    <option value="delete">Supprimer</option>
+                    <option value="export">Exporter la sélection</option>
+                </select>
+                <button onclick="applyBulkAction()">Appliquer</button>
+                <span id="selectedCount">0 client(s) sélectionné(s)</span>
+            </div>
+        </div>
+
+        <!-- Modal pour ajouter/modifier un client -->
+        <div id="clientModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="modalTitle">Ajouter un client</h3>
+                    <span class="close" onclick="closeModal('clientModal')">&times;</span>
+                </div>
+                <form id="clientForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="firstName">Prénom *</label>
+                            <input type="text" id="firstName" name="firstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Nom *</label>
+                            <input type="text" id="lastName" name="lastName" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email *</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Téléphone</label>
+                        <input type="tel" id="phone" name="phone">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="type">Type de client *</label>
+                            <select id="type" name="type" required>
+                                <option value="buyer">Acheteur</option>
+                                <option value="seller">Vendeur</option>
+                                <option value="tenant">Locataire</option>
+                                <option value="landlord">Propriétaire</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="status">Statut *</label>
+                            <select id="status" name="status" required>
+                                <option value="active">Actif</option>
+                                <option value="inactive">Inactif</option>
+                                <option value="pending">En attente</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-cancel" onclick="closeModal('clientModal')">Annuler</button>
+                        <button type="submit" class="btn-save">Enregistrer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal de confirmation -->
+        <div id="confirmModal" class="modal">
+            <div class="modal-content confirm-modal">
+                <h3>Confirmation</h3>
+                <p id="confirmMessage">Êtes-vous sûr de vouloir effectuer cette action ?</p>
+                <div class="confirm-actions">
+                    <button class="btn-cancel" onclick="closeModal('confirmModal')">Annuler</button>
+                    <button class="btn-confirm" id="confirmAction">Confirmer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/clients.js') }}"></script>
+</body>
+</html>

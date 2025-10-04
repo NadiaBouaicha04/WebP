@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, redirect, send_from_directory
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_pymongo import PyMongo
@@ -11,12 +11,21 @@ load_dotenv()
 
 app = Flask(__name__)
 
-# Configuration
+# Configuration CORS plus permissive
 app.config["MONGO_URI"] = os.getenv("MONGO_URI", "mongodb://localhost:27017/carbon_footprint")
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "clé_par_défaut_très_secrete_pour_dev")
+app.config['UPLOAD_FOLDER'] = 'uploads'
+
+# Configuration CORS pour accepter toutes les origines
+CORS(app, resources={
+    r"/api/*": {
+        "origins": ["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:3001"],
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"]
+    }
+})
 
 # Extensions
-CORS(app)
 mongo = PyMongo(app)
 
 # JWT
@@ -27,45 +36,222 @@ jwt = JWTManager(app)
 bcrypt = Bcrypt(app)
 
 # -------------------
+# Import des Blueprints
+# -------------------
+print("🔄 Chargement des blueprints...")
+
+try:
+    # Blueprint Auth
+    from routes.auth import create_auth_routes
+    auth_bp = create_auth_routes(mongo, bcrypt)
+    app.register_blueprint(auth_bp, url_prefix="/api/auth")
+    print("✅ Blueprint auth enregistré")
+
+    # Blueprint Pages (Admin)
+    from routes.pages import pages_bp
+    app.register_blueprint(pages_bp)
+    print("✅ Blueprint pages enregistré")
+
+    # Blueprint Clients API
+    from routes.clients import clients_bp
+    app.register_blueprint(clients_bp, url_prefix="/api")
+    print("✅ Blueprint clients API enregistré")
+
+    # Blueprint Properties API
+    from routes.properties import properties_bp
+    app.register_blueprint(properties_bp, url_prefix="/api")
+    print("✅ Blueprint properties API enregistré")
+
+except Exception as e:
+    print(f"❌ ERREUR lors du chargement des blueprints: {e}")
+    import traceback
+    traceback.print_exc()
+
+# -------------------
+# Routes de test pour React
+# -------------------
+@app.route('/api/test-react')
+def test_react_connection():
+    """Route de test spécifique pour React"""
+    return jsonify({
+        "message": "API Flask fonctionne correctement !",
+        "status": "success", 
+        "react_connection": "active",
+        "endpoints": {
+            "properties": "/api/api/properties",
+            "test": "/api/test-react"
+        }
+    })
+
+# -------------------
+# NOUVELLE ROUTE POUR LE FRONTEND REACT
+# -------------------
+@app.route('/api/biens', methods=['GET'])
+def get_all_biens():
+    """Route pour récupérer tous les biens pour React"""
+    try:
+        print("🔍 Récupération de tous les biens pour React...")
+        
+        # Récupérer tous les biens (sans filtre de statut d'abord)
+        biens = list(mongo.db.properties.find({}))
+        
+        # Si la collection properties est vide, essayez annonces
+        if not biens:
+            print("⚠️ Collection 'properties' vide, essai avec 'annonces'...")
+            biens = list(mongo.db.annonces.find({}))
+        
+        print(f"📊 {len(biens)} biens trouvés au total")
+        
+        # Convertir ObjectId en string et préparer les données
+        biens_data = []
+        for bien in biens:
+            bien_data = {
+                'id': str(bien['_id']),
+                'titre': bien.get('titre', 'Sans titre'),
+                'description': bien.get('description', ''),
+                'type': bien.get('type', 'Non spécifié'),
+                'prix': bien.get('prix', 0),
+                'surface': bien.get('surface', 0),
+                'chambres': bien.get('chambres', 0),
+                'salles_de_bain': bien.get('salles_de_bain', 1),
+                'ville': bien.get('ville', ''),
+                'adresse': bien.get('adresse', ''),
+                'code_postal': bien.get('code_postal', ''),
+                'statut': bien.get('statut', 'disponible'),
+                'images': bien.get('images', []),
+                'caracteristiques': bien.get('caracteristiques', [])
+            }
+            biens_data.append(bien_data)
+        
+        return jsonify({
+            "success": True,
+            "count": len(biens_data),
+            "biens": biens_data
+        })
+        
+    except Exception as e:
+        print(f"❌ Erreur dans /api/biens: {e}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+# Route de test améliorée
+@app.route('/api/test-data', methods=['GET'])
+def test_data():
+    """Route de test avec des données réelles"""
+    try:
+        # Compter les documents dans différentes collections
+        collections_info = {
+            'properties': mongo.db.properties.count_documents({}),
+            'annonces': mongo.db.annonces.count_documents({})
+        }
+        
+        return jsonify({
+            "message": "✅ API Flask fonctionne",
+            "collections": collections_info,
+            "routes_disponibles": [
+                "/api/biens",
+                "/api/test-data", 
+                "/api/test-react",
+                "/api/simple/properties"
+            ]
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# Route simple pour les biens (sans filtres complexes)
+@app.route('/api/simple/properties')
+def simple_properties():
+    """Version simplifiée pour debug"""
+    try:
+        from app import mongo
+        properties = list(mongo.db.annonces.find({"statut": "disponible"}).limit(10))
+        
+        properties_data = []
+        for property in properties:
+            # URLs d'images simples
+            images_with_urls = []
+            for image in property.get('images', []):
+                images_with_urls.append(f"http://127.0.0.1:5000/uploads/properties/{image}")
+            
+            property_data = {
+                'id': str(property['_id']),
+                'titre': property.get('titre', 'Sans titre'),
+                'description': property.get('description', ''),
+                'type': property.get('type', 'Appartement'),
+                'prix': property.get('prix', 0),
+                'surface': property.get('surface', 0),
+                'chambres': property.get('chambres', 0),
+                'ville': property.get('ville', ''),
+                'images': images_with_urls,
+            }
+            properties_data.append(property_data)
+        
+        return jsonify({
+            "success": True,
+            "count": len(properties_data),
+            "properties": properties_data
+        })
+        
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+# -------------------
 # Routes de base
 # -------------------
 @app.route('/')
 def home():
+    return redirect('/admin/dashboard')
+
+@app.route('/admin')
+def admin_redirect():
+    return redirect('/admin/dashboard')
+
+# ROUTE DASHBOARD MANQUANTE
+@app.route('/admin/dashboard')
+def admin_dashboard():
+    return render_template('admin/dashboard.html', username="Nadaaaaaa")
+
+@app.route('/admin/clients')
+def admin_clients():
+    return render_template('admin/clients.html')
+
+# ROUTE PROPERTIES MANQUANTE
+@app.route('/admin/properties')
+def admin_properties():
+    return render_template('admin/properties.html')
+
+@app.route('/api')
+def api_info():
     return jsonify({
         "message": "Carbon Footprint API is running!",
         "status": "active",
-        "endpoints": {
-            "auth_root": "/api/auth/",
-            "login": "/api/auth/login", 
-            "register": "/api/auth/register",
-            "profile": "/api/auth/me",
-            "admin": "/admin"
+        "react_endpoints": {
+            "test": "/api/test-react",
+            "simple_properties": "/api/simple/properties", 
+            "properties": "/api/api/properties"
         }
     }), 200
-
-@app.route('/admin')
-def admin_dashboard():
-    stats = {
-        'sales': '1,259',
-        'purchases': '352',
-        'orders': '894',
-        'profit': '12,584',
-        'progress': '65'
-    }
-    return render_template('dashboard.html', stats=stats, username="Nadaaaaaa")
 
 @app.route('/favicon.ico')
 def favicon():
     return '', 204
 
-# -------------------
-# DEBUG: Route pour voir toutes les routes enregistrées
-# -------------------
+# Route pour servir les fichiers uploadés
+@app.route('/uploads/<path:filename>')
+def serve_uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+# Debug routes
 @app.route('/debug/routes')
 def debug_routes():
     routes = []
     for rule in app.url_map.iter_rules():
-        if 'static' not in str(rule):  # Exclure les routes static
+        if 'static' not in str(rule):
             routes.append({
                 'endpoint': rule.endpoint,
                 'methods': list(rule.methods),
@@ -73,64 +259,23 @@ def debug_routes():
             })
     return jsonify(routes)
 
-# -------------------
-# Blueprint Auth - DEBUG AMÉLIORÉ
-# -------------------
-print("🔄 Tentative d'import du blueprint auth...")
-
-try:
-    # Vérifier si le fichier existe
-    routes_path = os.path.join(os.path.dirname(__file__), 'routes', 'auth.py')
-    print(f"📁 Chemin du fichier auth.py: {routes_path}")
-    print(f"📁 Fichier existe: {os.path.exists(routes_path)}")
-    
-    if os.path.exists(routes_path):
-        from routes.auth import create_auth_routes
-        print("✅ Import de create_auth_routes réussi")
-        
-        auth_bp = create_auth_routes(mongo, bcrypt)
-        print("✅ Blueprint auth créé")
-        
-        app.register_blueprint(auth_bp, url_prefix="/api/auth")
-        print("✅ Blueprint auth enregistré avec préfixe /api/auth")
-        
-        # Vérifier les routes du blueprint
-        print("📋 Routes du blueprint auth:")
-        for rule in auth_bp.url_map.iter_rules():
-            print(f"   - {rule.methods} {rule}")
-    else:
-        print("❌ Fichier auth.py introuvable")
-        print("📂 Contenu du dossier routes:", os.listdir('routes') if os.path.exists('routes') else "Dossier routes n'existe pas")
-        
-except Exception as e:
-    print(f"❌ ERREUR lors de l'enregistrement du blueprint auth: {e}")
-    import traceback
-    traceback.print_exc()
-
-# -------------------
-# Route de test pour vérifier l'API
-# -------------------
 @app.route('/api/test')
 def test_api():
     return jsonify({
         "message": "API test successful",
-        "auth_available": True
+        "react_connection": "active"
     }), 200
 
-# -------------------
 # Error handlers
-# -------------------
 @app.errorhandler(404)
 def not_found(error):
-    # Récupérer toutes les routes disponibles
-    available_routes = []
-    for rule in app.url_map.iter_rules():
-        if 'static' not in str(rule):
-            available_routes.append(str(rule))
-    
     return jsonify({
-        "error": "Endpoint not found", 
-        "available_endpoints": sorted(available_routes)
+        "error": "Endpoint not found",
+        "react_endpoints": [
+            "/api/test-react",
+            "/api/simple/properties",
+            "/api/api/properties"
+        ]
     }), 404
 
 @app.errorhandler(500)
@@ -140,11 +285,23 @@ def internal_error(error):
 if __name__ == "__main__":
     print("🚀 Starting Carbon Footprint API...")
     print("📍 Server running on http://127.0.0.1:5000")
+    print("🌐 CORS enabled for React on http://localhost:3000")
     
-    # Liste toutes les routes disponibles
-    print("📋 Toutes les routes enregistrées:")
-    for rule in app.url_map.iter_rules():
-        if 'static' not in str(rule):
-            print(f"   - {list(rule.methods)} {rule}")
+    # Créer le dossier uploads
+    if not os.path.exists(app.config['UPLOAD_FOLDER']):
+        os.makedirs(app.config['UPLOAD_FOLDER'])
+        print(f"📁 Dossier uploads créé: {app.config['UPLOAD_FOLDER']}")
+    
+    # Routes pour React
+    print("🔗 Endpoints pour React:")
+    print("   - GET /api/test-react")
+    print("   - GET /api/simple/properties") 
+    print("   - GET /api/api/properties")
+    
+    # Routes pour l'admin
+    print("👨‍💼 Routes Admin:")
+    print("   - GET /admin/dashboard")
+    print("   - GET /admin/clients")
+    print("   - GET /admin/properties")
     
     app.run(port=5000, debug=True)

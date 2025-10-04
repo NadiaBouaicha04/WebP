@@ -1,19 +1,35 @@
 import "../assets/Styles/Navbar.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import authService from "../services/auth";
 
 export default function Navbar() {
-  const [token, setToken] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Vérifie si l'utilisateur est connecté
-    const savedToken = localStorage.getItem("token");
-    setToken(savedToken);
+    checkAuth();
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    setToken(null);
+  const checkAuth = () => {
+    const authenticated = authService.isAuthenticated();
+    setIsAuthenticated(authenticated);
+    if (authenticated) {
+      setUser(authService.getUser());
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await authService.logout();
+      setIsAuthenticated(false);
+      setUser(null);
+      navigate("/");
+      window.location.reload();
+    } catch (error) {
+      console.error("Erreur lors de la déconnexion:", error);
+    }
   };
 
   return (
@@ -31,11 +47,15 @@ export default function Navbar() {
         <Link to="/contact" className="btn-contact">Contact</Link>
         <Link to="/deposer" className="btn-deposer">Déposer une annonce</Link>
 
-        {token ? (
-          <>
+        {isAuthenticated ? (
+          <div className="user-menu">
+            <span className="user-greeting">
+              👋 {user?.name}
+              {user?.role === 'admin' && ' 👑'}
+            </span>
             <Link to="/profile" className="btn-profile">Profil</Link>
-            <button onClick={handleLogout} className="btn-logout">Se Déconnecter</button>
-          </>
+            <button onClick={handleLogout} className="btn-logout">Déconnexion</button>
+          </div>
         ) : (
           <>
             <Link to="/register" className="btn-register">S'inscrire</Link>

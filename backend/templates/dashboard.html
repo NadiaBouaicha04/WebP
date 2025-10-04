@@ -8,73 +8,203 @@
 </head>
 <body>
     <div class="sidebar">
-        <h2>M - SoftTech</h2>
-        <ul>
-            <li class="active">🏠 Home</li>
-            <li>👤 User Control</li>
-            <li>📩 Access Request</li>
-            <li>🖥️ Admin</li>
-            <li>⚙️ Settings</li>
-            <li>📞 Support</li>
-            <li>⏻ Quit</li>
+        <div class="logo-section">
+            <h2>🏠 ImmoPro</h2>
+            <div class="user-profile">
+                <div class="avatar">N</div>
+                <div class="user-info">
+                    <span class="username">{{ username }}</span>
+                    <span class="role">Administrateur</span>
+                </div>
+            </div>
+        </div>
+        
+        <ul class="nav-menu">
+            <li class="nav-item active">🏠 Dashboard</li>
+            <li class="nav-item" onclick="window.location.href='/admin/clients'">👤 Gestion Clients</li>
+            <li class="nav-item" onclick="window.location.href='/admin/properties'">🏘️ Gestion Biens</li>
+            <li class="nav-item" onclick="window.location.href='/admin/appointments'">📅 Rendez-vous</li>
+            <li class="nav-item" onclick="window.location.href='/admin/transactions'">💰 Transactions</li>
+            <li class="nav-item" onclick="window.location.href='/admin/contracts'">📋 Contrats</li>
+            <li class="nav-item" onclick="window.location.href='/admin/agencies'">🏢 Agences</li>
+            <li class="nav-item" onclick="window.location.href='/admin/settings'">⚙️ Paramètres</li>
+            <li class="nav-item logout" onclick="logout()">⏻ Déconnexion</li>
         </ul>
+
         <div class="support-box">
-            <img src="https://cdn-icons-png.flaticon.com/512/1087/1087840.png" alt="Support">
-            <p>24/7 Service</p>
+            <div class="support-icon">📞</div>
+            <div class="support-info">
+                <h4>Support 24/7</h4>
+                <p>Contact: +33 1 23 45 67 89</p>
+            </div>
         </div>
     </div>
 
     <div class="main">
         <div class="navbar">
-            <h3>Dashboard</h3>
-            <div class="profile">👤 Nadaaaaaa</div>
-        </div>
-        <div class="flex-grow-1 p-4">
-        <!-- Welcome Banner -->
-<div class="welcome-banner">
-    <h1>Bonjour ! </h1>
-    <p>Bienvenue sur ton dashboard, Nadaaaaa.</p>
-</div>
-
-
-        <div class="cards">
-            <div class="card">
-                <h4>Sales</h4>
-                <p>{{ stats.sales }}</p>
-                <span class="green">+5.67% Since Last Month</span>
+            <div class="nav-left">
+                <h3>Dashboard</h3>
+                <p class="welcome-text">Vue d'ensemble de votre activité</p>
             </div>
-            <div class="card">
-                <h4>Purchases</h4>
-                <p>{{ stats.purchases }}</p>
-                <span class="red">-5.64% Since Last Month</span>
-            </div>
-            <div class="card">
-                <h4>Orders</h4>
-                <p>{{ stats.orders }}</p>
-                <span class="green">+5.67% Since Last Month</span>
+            <div class="nav-right">
+                <div class="search-box">
+                    <input type="text" placeholder="Rechercher...">
+                    <span>🔍</span>
+                </div>
+                <div class="notifications">🔔 <span class="notification-badge">3</span></div>
+                <div class="profile-menu">
+                    <div class="profile-avatar">N</div>
+                </div>
             </div>
         </div>
-
-        <div class="bottom-section">
-            <div class="overview">
-                <h4>Overview</h4>
-                <p>Member Profit: <span class="green">+{{ stats.profit }}</span></p>
+        
+        <div class="content">
+            <!-- Welcome Banner -->
+            <div class="welcome-banner">
+                <h1>Bonjour {{ username }} ! 🌟</h1>
+                <p>Bienvenue sur votre tableau de bord administrateur</p>
             </div>
 
-            <div class="circle">
-                <h4>Total Sale</h4>
-                <div class="progress">{{ stats.progress }}%</div>
+            <!-- Statistiques en temps réel -->
+            <div class="stats-grid">
+                <div class="stat-card total-users">
+                    <div class="card-header">
+                        <h3>Total Utilisateurs</h3>
+                        <div class="card-icon">👥</div>
+                    </div>
+                    <div class="card-value" id="totalUsers">0</div>
+                    <div class="card-trend positive">
+                        <span id="usersGrowth">+0%</span>
+                        <span>Ce mois</span>
+                    </div>
+                </div>
+
+                <div class="stat-card total-properties">
+                    <div class="card-header">
+                        <h3>Total Biens</h3>
+                        <div class="card-icon">🏘️</div>
+                    </div>
+                    <div class="card-value" id="totalProperties">0</div>
+                    <div class="card-trend positive">
+                        <span id="propertiesGrowth">+0%</span>
+                        <span>En stock</span>
+                    </div>
+                </div>
+
+                <div class="stat-card active-properties">
+                    <div class="card-header">
+                        <h3>Biens Disponibles</h3>
+                        <div class="card-icon">✅</div>
+                    </div>
+                    <div class="card-value" id="availableProperties">0</div>
+                    <div class="card-trend positive">
+                        <span id="availableGrowth">+0%</span>
+                        <span>Actuellement</span>
+                    </div>
+                </div>
+
+                <div class="stat-card new-clients">
+                    <div class="card-header">
+                        <h3>Nouveaux Clients</h3>
+                        <div class="card-icon">🆕</div>
+                    </div>
+                    <div class="card-value" id="newClients">0</div>
+                    <div class="card-trend positive">
+                        <span id="clientsGrowth">+0%</span>
+                        <span>Cette semaine</span>
+                    </div>
+                </div>
             </div>
 
-            <div class="activity">
-                <h4>Activity</h4>
-                <ul>
-                    <li><span class="dot yellow"></span> Nouvelle annonce publiée</li>
-                    <li><span class="dot red"></span> Annonce supprimée</li>
-                    <li><span class="dot green"></span> Utilisateur inscrit</li>
-                </ul>
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Activité Récente</h3>
+                    </div>
+                    <div class="activity-list" id="recentActivity">
+                        <div class="loading-spinner">Chargement des activités...</div>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Statut des Biens</h3>
+                    </div>
+                    <canvas id="propertiesChart" width="400" height="300"></canvas>
+                </div>
+            </div>
+
+            <div class="bottom-grid">
+                <div class="activity-card">
+                    <div class="card-header">
+                        <h3>Derniers Utilisateurs</h3>
+                        <button class="view-all" onclick="window.location.href='/admin/clients'">Voir tout</button>
+                    </div>
+                    <div class="users-list" id="recentUsers">
+                        <div class="loading-spinner">Chargement des utilisateurs...</div>
+                    </div>
+                </div>
+
+                <div class="progress-card">
+                    <div class="card-header">
+                        <h3>Performance</h3>
+                    </div>
+                    <div class="progress-circle">
+                        <div class="circle-progress" data-progress="75">
+                            <span class="progress-value">75%</span>
+                        </div>
+                        <p>Taux de conversion</p>
+                    </div>
+                </div>
+
+                <div class="goals-card">
+                    <div class="card-header">
+                        <h3>Objectifs du Mois</h3>
+                    </div>
+                    <div class="goals-list">
+                        <div class="goal-item">
+                            <div class="goal-info">
+                                <span class="goal-icon">🎯</span>
+                                <span class="goal-text">Nouveaux clients</span>
+                            </div>
+                            <div class="goal-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 65%"></div>
+                                </div>
+                                <span>65%</span>
+                            </div>
+                        </div>
+                        <div class="goal-item">
+                            <div class="goal-info">
+                                <span class="goal-icon">🏠</span>
+                                <span class="goal-text">Biens vendus</span>
+                            </div>
+                            <div class="goal-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 45%"></div>
+                                </div>
+                                <span>45%</span>
+                            </div>
+                        </div>
+                        <div class="goal-item">
+                            <div class="goal-info">
+                                <span class="goal-icon">💰</span>
+                                <span class="goal-text">Chiffre d'affaires</span>
+                            </div>
+                            <div class="goal-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 80%"></div>
+                                </div>
+                                <span>80%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
 </body>
 </html>

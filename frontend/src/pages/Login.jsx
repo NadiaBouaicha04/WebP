@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
+import authService from "../services/auth";
 import Navbar from "../Component/Navbar";
 import Footer from "../Component/Footer";
 import "../assets/Styles/Auth.css";
@@ -18,40 +19,30 @@ export default function Login() {
     setMessage("");
     
     try {
-      console.log("🔄 Tentative de connexion avec:", { email });
-      
       const res = await api.post("/auth/login", { 
         email, 
         password 
       });
       
-      console.log("✅ Réponse reçue:", res.data);
-      
-      // Stocker le token et les infos utilisateur
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+      // Utiliser le service d'authentification
+      authService.setAuth(res.data.token, res.data.user);
       
       setMessage("Connexion réussie ! Redirection...");
       
       // Redirection selon le rôle
       setTimeout(() => {
         if (res.data.user.role === "admin") {
-          console.log("👑 Redirection admin vers Flask");
           window.location.href = "http://localhost:5000/admin";
         } else {
-          console.log("👤 Redirection user vers React");
           navigate("/");
+          window.location.reload();
         }
       }, 1000);
       
     } catch (err) {
-      console.error("❌ Erreur de connexion:", err);
-      console.error("❌ Détails:", err.response?.data);
-      
       setMessage(
         err.response?.data?.error || 
-        err.response?.data?.msg || 
-        "Erreur de connexion, vérifiez la console"
+        "Erreur de connexion, vérifiez vos identifiants"
       );
     } finally {
       setLoading(false);
@@ -104,18 +95,18 @@ export default function Login() {
                 </p>
               )}
 
-              {/* Debug info */}
               <div style={{ 
                 marginTop: "15px", 
                 padding: "10px", 
                 backgroundColor: "#f5f5f5", 
                 borderRadius: "5px",
                 fontSize: "12px",
-                color: "#666"
+                color: "#666",
+                textAlign: "center"
               }}>
-                <strong>Debug:</strong><br/>
-                • URL: {api.defaults.baseURL}/auth/login<br/>
-                • Email test: admin@example.com
+                <strong>Comptes de test:</strong><br/>
+                • Admin: admin@example.com / admin123<br/>
+                • User: test@example.com / password123
               </div>
             </form>
           </div>

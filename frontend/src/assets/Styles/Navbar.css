@@ -38,17 +38,24 @@
 .navbar-actions {
   display: flex;
   gap: 12px;
+  margin-right: 40px;
+  align-items: center;
 }
 
-.btn-signin {
+.btn-contact, .btn-deposer {
   color: #2c3e50;
   text-decoration: none;
   font-weight: 500;
+  padding: 8px 15px;
+  border-radius: 5px;
+  transition: background 0.3s ease;
 }
 
-.btn-signup {
-  background: #16a085;
-  color: white;
+.btn-contact:hover, .btn-deposer:hover {
+  background: #f8f9fa;
+}
+
+.btn-register, .btn-login {
   text-decoration: none;
   padding: 8px 18px;
   border-radius: 25px;
@@ -57,14 +64,65 @@
   transition: background 0.3s ease;
 }
 
-.btn-signup:hover {
+.btn-register {
+  background: #16a085;
+  color: white;
+}
+
+.btn-register:hover {
   background: #138d75;
 }
 
-
-.navbar-actions {
-  display: flex;
-  gap: 12px;
-  margin-right: 40px; /* espace à gauche du bord droit */
+.btn-login {
+  background: transparent;
+  color: #2c3e50;
+  border: 1px solid #16a085;
 }
 
+.btn-login:hover {
+  background: #16a085;
+  color: white;
+}
+
+/* Styles pour l'utilisateur connecté */
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.user-greeting {
+  color: #2c3e50;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.btn-profile {
+  background: #007bff;
+  color: white;
+  text-decoration: none;
+  padding: 8px 15px;
+  border-radius: 5px;
+  font-size: 14px;
+  transition: background 0.3s ease;
+}
+
+.btn-profile:hover {
+  background: #0056b3;
+  color: white;
+}
+
+.btn-logout {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.3s ease;
+}
+
+.btn-logout:hover {
+  background: #c82333;
+}

@@ -60,12 +60,13 @@ def create_auth_routes(mongo, bcrypt):
             "available_endpoints": {
                 "register": "POST /register",
                 "login": "POST /login", 
+                "logout": "POST /logout",
                 "profile": "GET /me (protected)"
             }
         }), 200
 
     # -------------------
-    # Inscription - CORRIGÉE (bien indentée)
+    # Inscription
     # -------------------
     @auth_bp.route("/register", methods=["POST"])
     def register():
@@ -174,6 +175,20 @@ def create_auth_routes(mongo, bcrypt):
         except Exception as e:
             print(f"❌ Erreur connexion: {e}")
             return jsonify({"error": "Erreur interne du serveur"}), 500
+
+    # -------------------
+    # Déconnexion - NOUVELLE ROUTE
+    # -------------------
+    @auth_bp.route("/logout", methods=["POST"])
+    @jwt_required()
+    def logout():
+        try:
+            # Dans une application plus avancée, vous pourriez blacklister le token ici
+            # Pour l'instant, on se contente de supprimer le token côté client
+            return jsonify({"message": "Déconnexion réussie"}), 200
+        except Exception as e:
+            print(f"❌ Erreur déconnexion: {e}")
+            return jsonify({"error": "Erreur lors de la déconnexion"}), 500
 
     # -------------------
     # Profil utilisateur

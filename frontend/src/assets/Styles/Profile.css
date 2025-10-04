@@ -15,7 +15,7 @@
 }
 
 .profile-left {
-  background-color: #bcb4b2; /* couleur comme sur ton exemple */
+  background-color: #bcb4b2;
   color: white;
   padding: 40px;
   text-align: center;
@@ -31,11 +31,28 @@
 
 .contact-info {
   display: flex;
-  flex-direction: column; /* affiche chaque <p> l'un sous l'autre */
-  gap: 8px; /* espace entre les lignes */
+  flex-direction: column;
+  gap: 8px;
   font-size: 16px;
 }
 
+.role-badge {
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+.role-badge.admin {
+  background: #dc3545;
+  color: white;
+}
+
+.role-badge.user {
+  background: #28a745;
+  color: white;
+}
 
 .profile-right {
   flex: 2;
@@ -57,6 +74,12 @@
   color: #555;
 }
 
+.profile-actions {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
 .download-cv {
   background-color: #16a085;
   color: white;
@@ -64,11 +87,25 @@
   padding: 12px 25px;
   border-radius: 5px;
   cursor: pointer;
-  margin-bottom: 20px;
+  transition: background 0.3s ease;
 }
 
 .download-cv:hover {
-  background-color: #e0664b;
+  background-color: #138d75;
+}
+
+.logout-btn-profile {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.logout-btn-profile:hover {
+  background-color: #c82333;
 }
 
 .social-icons a {
@@ -82,4 +119,13 @@
   color: #f37a5a;
 }
 
+.loading-profile {
+  text-align: center;
+  padding: 50px;
+  font-size: 18px;
+  color: #666;
+}
 
+.spacer {
+  height: 80px;
+}
