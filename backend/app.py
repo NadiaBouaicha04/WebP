@@ -346,6 +346,45 @@ def api_info():
         }
     }), 200
 
+@app.route('/api/auth/me', methods=['GET'])
+def get_current_user():
+    """Route pour récupérer l'utilisateur connecté"""
+    try:
+        auth_header = request.headers.get('Authorization')
+        
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return jsonify({"error": "Token manquant"}), 401
+            
+        token = auth_header.split(' ')[1]
+        
+        # Vérifier le token
+        decoded_token = pyjwt.decode(token, app.config['JWT_SECRET_KEY'], algorithms=['HS256'])
+        user_email = decoded_token.get('sub')
+        user_role = decoded_token.get('role', 'user')
+        
+        # Récupérer l'utilisateur depuis la base de données
+        user = mongo.db.users.find_one({'email': user_email})
+        
+        if not user:
+            return jsonify({"error": "Utilisateur non trouvé"}), 404
+            
+        return jsonify({
+            "id": str(user['_id']),
+            "email": user['email'],
+            "name": user.get('name', 'Utilisateur'),
+            "role": user.get('role', 'user'),
+            "phone": user.get('phone', 'Non renseigné'),
+            "city": user.get('city', 'Non renseigné'),
+            "bio": user.get('bio', ''),
+            "facebook": user.get('facebook', '#'),
+            "twitter": user.get('twitter', '#'),
+            "instagram": user.get('instagram', '#'),
+            "linkedin": user.get('linkedin', '#')
+        }), 200
+        
+    except Exception as e:
+        print(f" Erreur /auth/me: {e}")
+        return jsonify({"error": "Token invalide"}), 401
 
 
 @app.route('/admin/logout')

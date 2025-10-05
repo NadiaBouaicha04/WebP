@@ -29,13 +29,10 @@ export default function Login() {
       });
       
       console.log("✅ Réponse API reçue - Status:", res.status);
-      console.log("📦 Données complètes:", res.data);
 
-      // CORRECTION : Vérifier la connexion par le status et la présence du token
       if (res.status === 200 && res.data.token && res.data.user) {
         console.log("🔐 Connexion réussie détectée");
         console.log("🎭 Rôle:", res.data.user.role);
-        console.log("🔑 Token:", res.data.token);
         
         // 1. Stocker dans le localStorage via authService
         authService.setAuth(res.data.token, res.data.user);
@@ -66,7 +63,7 @@ export default function Login() {
         
       } else {
         console.log("❌ Échec de la connexion - Structure de données incorrecte");
-        setMessage(res.data.error || "Erreur: Structure de réponse inattendue");
+        setMessage("Erreur: Structure de réponse inattendue");
       }
       
     } catch (err) {
@@ -91,9 +88,9 @@ export default function Login() {
       <Navbar />
       <div className="signup-body">
         <div className="signup-container">
-          <div className="signup-form-container signup-sign-in-container">
+          <div className="signup-form-container">
             <form className="signup-form" onSubmit={handleSubmit}>
-              <h1 className="signup-h1">Se connecter</h1>
+              <h1>Se connecter</h1>
               
               <input
                 className="signup-input"
@@ -123,28 +120,23 @@ export default function Login() {
               </button>
               
               {message && (
-                <p style={{ 
-                  marginTop: "10px", 
-                  color: message.includes("réussie") ? "green" : "red",
-                  textAlign: "center"
-                }}>
+                <div className={message.includes("réussie") ? "success-message" : "error-message"}>
                   {message}
-                </p>
+                </div>
               )}
 
-              {/* Comptes de test */}
+              {/* Section informations de test (optionnelle) */}
               <div style={{ 
-                marginTop: "15px", 
-                padding: "10px", 
-                backgroundColor: "#f5f5f5", 
-                borderRadius: "5px",
-                fontSize: "12px",
-                color: "#666",
-                textAlign: "center"
+                marginTop: "20px", 
+                padding: "15px", 
+                backgroundColor: "#f8f9fa", 
+                borderRadius: "10px",
+                fontSize: "13px",
+                color: "#6c757d",
+                textAlign: "center",
+                border: "1px solid #e9ecef"
               }}>
-                <strong>Comptes de test:</strong><br/>
-                • Admin: admin@example.com / admin123<br/>
-                • User: user@example.com / password123
+                
               </div>
             </form>
           </div>
