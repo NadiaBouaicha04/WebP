@@ -45,6 +45,7 @@ export default function Navbar() {
         <li><Link to="/acheter">Acheter</Link></li>
         <li><Link to="/vendre">Vendre</Link></li>
         <li><Link to="/louer">Louer</Link></li>
+        <li><Link to="/Predictor">Estimateur</Link></li>
         <li><Link to="/apropos">À propos</Link></li>
       </ul>
 

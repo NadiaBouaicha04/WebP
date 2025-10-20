@@ -11,6 +11,8 @@ import 'leaflet/dist/leaflet.css';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, LineChart, Line, Legend, AreaChart, Area } from 'recharts';
 import L from 'leaflet';
 import { styled } from '@mui/material/styles';
+import { useNavigate } from 'react-router-dom'; // Import pour la navigation
+import { Chat, SmartToy } from '@mui/icons-material'; // Icône pour le bouton
 
 // Fix Leaflet icon issue
 delete L.Icon.Default.prototype._getIconUrl;
@@ -21,14 +23,14 @@ L.Icon.Default.mergeOptions({
 
 // Composants stylisés avec thème vert
 const GreenButton = styled(Button)(({ theme }) => ({
-  background: 'linear-gradient(45deg, #27ae60, #2ecc71)',
+  background: 'linear-gradient(45deg, #16a085, #16a085)',
   borderRadius: '25px',
   padding: '12px 30px',
   fontWeight: 'bold',
   fontSize: '1.1rem',
   boxShadow: '0 4px 15px 0 rgba(39, 174, 96, 0.3)',
   '&:hover': {
-    background: 'linear-gradient(45deg, #219653, #27ae60)',
+    background: 'linear-gradient(45deg, #16a085, #16a085)',
     boxShadow: '0 6px 20px 0 rgba(39, 174, 96, 0.4)',
     transform: 'translateY(-2px)',
   },
@@ -43,8 +45,24 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
   border: '1px solid rgba(46, 204, 113, 0.1)',
 }));
 
+const ChatbotButton = styled(Button)(({ theme }) => ({
+  background: 'linear-gradient(45deg, #3498db, #16a085)',
+  borderRadius: '25px',
+  padding: '12px 30px',
+  fontWeight: 'bold',
+  fontSize: '1.1rem',
+  boxShadow: '0 4px 15px 0 rgba(52, 152, 219, 0.3)',
+  color: 'white',
+  '&:hover': {
+    background: 'linear-gradient(45deg, #16a085, #16a085)',
+    boxShadow: '0 6px 20px 0 rgba(52, 152, 219, 0.4)',
+    transform: 'translateY(-2px)',
+  },
+  transition: 'all 0.3s ease',
+}));
+
 const PredictionCard = styled(Card)(({ theme }) => ({
-  background: 'linear-gradient(135deg, #27ae60, #2ecc71)',
+  background: 'linear-gradient(135deg, #16a085, #16a085)',
   color: 'white',
   borderRadius: '20px',
   padding: theme.spacing(3),
@@ -53,6 +71,7 @@ const PredictionCard = styled(Card)(({ theme }) => ({
 }));
 
 const Predictor = () => {
+  const navigate = useNavigate(); // Hook pour la navigation
   const [formData, setFormData] = useState({
     Rooms: 2,
     Area: 50,
@@ -74,6 +93,10 @@ const Predictor = () => {
 
   const categories = ['Appartement', 'Villa', 'Maison'];
   const currencies = ['EUR', 'USD', 'GBP', 'CAD', 'JPY'];
+
+  const handleGoToChatbot = () => {
+    navigate('/chatbot'); // Assurez-vous que cette route est définie dans votre App.js
+  };
 
   // Gouvernorats pour la carte
   const governoratesCoords = {
@@ -204,7 +227,7 @@ const Predictor = () => {
     { name: "Prix Max", value: prediction.max_price },
   ] : [];
 
-  const GREEN_COLORS = ['#2ecc71', '#27ae60', '#219653'];
+  const GREEN_COLORS = ['#16a085', '#16a085', '#16a085'];
 
   // Données pour le graphique d'évolution des prix
   const getPriceEvolutionData = () => {
@@ -236,7 +259,7 @@ const Predictor = () => {
       <Zoom in={true} timeout={800}>
         <Typography variant="h2" gutterBottom align="center" sx={{ 
           mb: 6, 
-          background: 'linear-gradient(45deg, #27ae60, #2ecc71)',
+          background: 'linear-gradient(45deg, #16a085, #16a085)',
           backgroundClip: 'text',
           textFillColor: 'transparent',
           fontWeight: '800',
@@ -342,21 +365,41 @@ const Predictor = () => {
                     </TextField>
                   </Grid>
                 </Grid>
-                <Box textAlign="center" mt={4}>
+
+                {/* MODIFICATION ICI : Les deux boutons côte à côte */}
+                <Box sx={{ 
+                  display: 'flex', 
+                  gap: 2, 
+                  justifyContent: 'center', 
+                  mt: 4,
+                  flexWrap: 'wrap'
+                }}>
                   <GreenButton 
                     type="submit" 
                     variant="contained" 
                     size="large" 
                     disabled={loading}
+                    startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
                   >
-                    {loading ? <CircularProgress size={24} color="inherit" /> : '🌱 Estimer le prix'}
+                    {loading ? 'Estimation...' : '🌱 Estimer le prix'}
                   </GreenButton>
+                  
+                  <ChatbotButton 
+                    variant="contained" 
+                    size="large"
+                    startIcon={<SmartToy />}
+                    onClick={handleGoToChatbot}
+                  >
+                    🤖 Assistant IA
+                  </ChatbotButton>
                 </Box>
+
                 {errors.submit && <Alert severity="error" sx={{ mt: 2, borderRadius: '12px' }}>{errors.submit}</Alert>}
               </form>
             </StyledPaper>
           </Grow>
 
+          {/* Le reste du code reste inchangé */}
           {/* Card Simulation améliorée */}
           {prediction && (
             <Fade in={showAnimation} timeout={1000}>
@@ -368,7 +411,7 @@ const Predictor = () => {
                 border: '1px solid rgba(46, 204, 113, 0.2)'
               }}>
                 <CardContent>
-                  <Typography variant="h5" gutterBottom sx={{ color: '#27ae60', fontWeight: '600' }}>
+                  <Typography variant="h5" gutterBottom sx={{ color: '#16a085', fontWeight: '600' }}>
                     🔮 Mode Simulation Interactive
                   </Typography>
                   
@@ -384,9 +427,9 @@ const Predictor = () => {
                       max={500}
                       step={10}
                       sx={{
-                        color: '#27ae60',
+                        color: '#16a085',
                         '& .MuiSlider-thumb': {
-                          backgroundColor: '#27ae60',
+                          backgroundColor: '#16a085',
                         }
                       }}
                     />
@@ -404,9 +447,9 @@ const Predictor = () => {
                       max={7}
                       step={1}
                       sx={{
-                        color: '#27ae60',
+                        color: '#16a085',
                         '& .MuiSlider-thumb': {
-                          backgroundColor: '#27ae60',
+                          backgroundColor: '#16a085',
                         }
                       }}
                     />
@@ -419,7 +462,7 @@ const Predictor = () => {
                     background: "linear-gradient(135deg, #e8f5e9, #c8e6c9)",
                     border: '1px solid #a5d6a7'
                   }}>
-                    <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#2e7d32', mb: 2 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#16a085', mb: 2 }}>
                       📊 Scénarios de Prix:
                     </Typography>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
@@ -436,7 +479,7 @@ const Predictor = () => {
                         </Typography>
                       </Box>
                       <Box sx={{ textAlign: 'center', flex: 1, minWidth: '100px' }}>
-                        <Typography variant="body2" sx={{ color: '#27ae60', fontWeight: '600' }}>Optimiste</Typography>
+                        <Typography variant="body2" sx={{ color: '#16a085', fontWeight: '600' }}>Optimiste</Typography>
                         <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
                           {prediction.max_price ? Math.round(prediction.max_price).toLocaleString() : 'N/A'} TND
                         </Typography>
@@ -460,7 +503,7 @@ const Predictor = () => {
               }}>
                 <Typography variant="h6" gutterBottom sx={{ 
                   textAlign: 'center', 
-                  color: '#27ae60',
+                  color: '#16a085',
                   fontWeight: '600',
                   mb: 3
                 }}>
@@ -475,20 +518,20 @@ const Predictor = () => {
                   }}>
                     <thead>
                       <tr style={{ 
-                        background: 'linear-gradient(45deg, #27ae60, #2ecc71)',
+                        background: 'linear-gradient(45deg, #16a085, #16a085)',
                         color: 'white'
                       }}>
                         <th style={{ 
                           padding: '16px', 
                           textAlign: 'left', 
-                          borderBottom: '2px solid #1e8449',
+                          borderBottom: '2px solid #16a085',
                           fontWeight: '600',
                           fontSize: '0.9rem'
                         }}>Gouvernorat</th>
                         <th style={{ 
                           padding: '16px', 
                           textAlign: 'right', 
-                          borderBottom: '2px solid #1e8449',
+                          borderBottom: '2px solid #16a085',
                           fontWeight: '600',
                           fontSize: '0.9rem'
                         }}>Prix moyen (TND)</th>
@@ -506,7 +549,7 @@ const Predictor = () => {
                           <td style={{ 
                             padding: '14px', 
                             fontWeight: item.Governorate === formData.Governorate ? 'bold' : 'normal',
-                            color: item.Governorate === formData.Governorate ? '#27ae60' : '#2c3e50'
+                            color: item.Governorate === formData.Governorate ? '#16a085' : '#2c3e50'
                           }}>
                             {item.Governorate}
                             {item.Governorate === formData.Governorate && ' 🎯'}
@@ -515,7 +558,7 @@ const Predictor = () => {
                             padding: '14px', 
                             textAlign: 'right', 
                             fontWeight: item.Governorate === formData.Governorate ? 'bold' : 'normal',
-                            color: item.Governorate === formData.Governorate ? '#27ae60' : '#2c3e50'
+                            color: item.Governorate === formData.Governorate ? '#16a085' : '#2c3e50'
                           }}>
                             {Math.round(item.mean).toLocaleString()}
                           </td>
@@ -590,7 +633,7 @@ const Predictor = () => {
                             mt: 2,
                             border: '1px solid #a5d6a7'
                           }}>
-                            <Typography variant="h5" sx={{ color: '#27ae60', fontWeight: 'bold' }}>
+                            <Typography variant="h5" sx={{ color: '#16a085', fontWeight: 'bold' }}>
                               {convertedPrice.toLocaleString(undefined, { maximumFractionDigits: 0 })} {currency}
                             </Typography>
                           </Box>
@@ -655,14 +698,14 @@ const Predictor = () => {
                         <Area 
                           type="monotone" 
                           dataKey="prix" 
-                          stroke="#27ae60" 
+                          stroke="#16a085" 
                           fill="url(#colorGreen)" 
                           fillOpacity={0.6}
                         />
                         <defs>
                           <linearGradient id="colorGreen" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#27ae60" stopOpacity={0.8}/>
-                            <stop offset="95%" stopColor="#27ae60" stopOpacity={0.1}/>
+                            <stop offset="5%" stopColor="#16a085" stopOpacity={0.8}/>
+                            <stop offset="95%" stopColor="#16a085" stopOpacity={0.1}/>
                           </linearGradient>
                         </defs>
                       </AreaChart>
@@ -702,7 +745,7 @@ const Predictor = () => {
                         />
                         <Marker position={governoratesCoords[formData.Governorate]}>
                           <Popup>
-                            <Typography variant="h6" sx={{ color: '#27ae60', fontWeight: 'bold' }}>
+                            <Typography variant="h6" sx={{ color: '#16a085', fontWeight: 'bold' }}>
                               {formData.Governorate}
                             </Typography>
                             <Typography>
@@ -770,10 +813,10 @@ const Predictor = () => {
                       <Line 
                         type="monotone" 
                         dataKey="optimiste" 
-                        stroke="#27ae60" 
+                        stroke="#16a085" 
                         name="Optimiste" 
                         strokeWidth={2}
-                        dot={{ fill: '#27ae60' }}
+                        dot={{ fill: '#16a085' }}
                       />
                     </LineChart>
                   </ResponsiveContainer>

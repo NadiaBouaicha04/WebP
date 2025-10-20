@@ -9,10 +9,23 @@ let dashboardData = {
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log("🚀 Dashboard initialisé");
+
+    // --- EXISTANT ---
     loadDashboardData();
     setupNavigation();
     setupCardInteractions();
+
+    const logoImg = document.querySelector('.sidebar .logo-section img');
+    if (logoImg) {
+        // URL relative au serveur
+        logoImg.src = '/static/uploads/logoo.png'; 
+        logoImg.alt = 'Logo de l’entreprise';
+        console.log('Logo mis à jour :', logoImg.src);
+    }
+
+
 });
+
 
 // Charger toutes les données du dashboard
 async function loadDashboardData() {
