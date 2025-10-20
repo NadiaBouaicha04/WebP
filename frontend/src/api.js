@@ -9,11 +9,11 @@ const api = axios.create({
 // Intercepteur pour debug
 api.interceptors.request.use(
   (config) => {
-    console.log(`🚀 Requête ${config.method?.toUpperCase()} vers: ${config.url}`);
+    console.log(` Requête ${config.method?.toUpperCase()} vers: ${config.url}`);
     return config;
   },
   (error) => {
-    console.error('❌ Erreur requête:', error);
+    console.error(' Erreur requête:', error);
     return Promise.reject(error);
   }
 );

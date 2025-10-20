@@ -12,52 +12,26 @@ export default function Acheter() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // URL backend
+  const API_URL = "http://127.0.0.1:5000/api/properties";
+
   useEffect(() => {
     const fetchProperties = async () => {
       try {
         setLoading(true);
-        
-        const API_URLS = [
-          'http://127.0.0.1:5000/api/biens',
-          'http://127.0.0.1:5000/api/api/properties',
-          'http://127.0.0.1:5000/api/properties',
-          'http://127.0.0.1:5000/api/simple/properties'
-        ];
-        
-        let properties = [];
-        
-        for (const API_URL of API_URLS) {
-          try {
-            const response = await fetch(API_URL);
-            
-            if (!response.ok) continue;
-            
-            const data = await response.json();
-            
-            if (data.biens && Array.isArray(data.biens)) {
-              properties = data.biens;
-              break;
-            } else if (data.properties && Array.isArray(data.properties)) {
-              properties = data.properties;
-              break;
-            } else if (Array.isArray(data)) {
-              properties = data;
-              break;
-            }
-          } catch (err) {
-            continue;
-          }
-        }
-        
-        if (properties.length > 0) {
-          setBiensAcheter(properties);
+        const response = await fetch(API_URL);
+        if (!response.ok) throw new Error("Impossible de récupérer les biens");
+
+        const data = await response.json();
+
+        if (data.success && Array.isArray(data.properties)) {
+          setBiensAcheter(data.properties);
           setError(null);
         } else {
-          throw new Error('Impossible de charger les biens');
+          throw new Error("Aucun bien disponible");
         }
-        
-      } catch (error) {
-        setError(error.message);
+      } catch (err) {
+        setError(err.message);
       } finally {
         setLoading(false);
       }
@@ -66,13 +40,24 @@ export default function Acheter() {
     fetchProperties();
   }, []);
 
+  // URL complète de l'image - CORRIGÉ
+  const getPropertyImageUrl = (filename) => {
+    if (!filename) return "https://via.placeholder.com/300x200?text=Pas+d'image";
+    
+    // Si c'est déjà une URL complète, on la retourne telle quelle
+    if (filename.startsWith('http')) return filename;
+    
+    // Si c'est un chemin relatif, on construit l'URL complète
+    return `http://127.0.0.1:5000/uploads/properties/${filename}`;
+  };
+
   const filteredBiens = biensAcheter
-    .filter(bien => (filterType === "Tous" ? true : bien.type === filterType))
-    .filter(bien => bien.titre && bien.titre.toLowerCase().includes(search.toLowerCase()))
+    .filter((bien) => (filterType === "Tous" ? true : bien.type === filterType))
+    .filter((bien) => bien.titre && bien.titre.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => {
-      const prixA = typeof a.prix === 'string' ? parseFloat(a.prix) : a.prix;
-      const prixB = typeof b.prix === 'string' ? parseFloat(b.prix) : b.prix;
-      
+      const prixA = typeof a.prix === "string" ? parseFloat(a.prix) : a.prix;
+      const prixB = typeof b.prix === "string" ? parseFloat(b.prix) : b.prix;
+
       if (sortOrder === "asc") return prixA - prixB;
       if (sortOrder === "desc") return prixB - prixA;
       return 0;
@@ -80,22 +65,10 @@ export default function Acheter() {
 
   const openModal = () => setShowSignInModal(true);
   const closeModal = () => setShowSignInModal(false);
-
-  const handleVoirBien = (bienId) => {
-    openModal();
-  };
-
-  const getPropertyImage = (bien) => {
-    if (bien.images && bien.images.length > 0) {
-      return bien.images[0];
-    }
-    return "/default-property.jpg";
-  };
+  const handleVoirBien = (bienId) => openModal();
 
   const formatPrix = (prix) => {
-    if (typeof prix === 'string') {
-      return parseFloat(prix).toLocaleString();
-    }
+    if (typeof prix === "string") return parseFloat(prix).toLocaleString();
     return prix.toLocaleString();
   };
 
@@ -105,9 +78,7 @@ export default function Acheter() {
         <Navbar />
         <div className="vendre-container">
           <h2>Acheter un bien</h2>
-          <div className="loading-container">
-            <div className="loading-spinner">Chargement des biens...</div>
-          </div>
+          <div className="loading-container">Chargement des biens...</div>
         </div>
         <Footer />
       </>
@@ -121,7 +92,7 @@ export default function Acheter() {
         <div className="vendre-container">
           <h2>Acheter un bien</h2>
           <div className="error-container">
-            <div className="error-message"> {error}</div>
+            <div className="error-message">{error}</div>
             <button onClick={() => window.location.reload()} className="retry-button">
               Réessayer
             </button>
@@ -138,6 +109,7 @@ export default function Acheter() {
       <div className="vendre-container">
         <h2>Acheter un bien</h2>
 
+        {/* Filtres */}
         <div className="filters-container">
           <input
             type="text"
@@ -146,98 +118,72 @@ export default function Acheter() {
             onChange={(e) => setSearch(e.target.value)}
             className="search-input"
           />
-
-          <select
-            value={filterType}
-            onChange={(e) => setFilterType(e.target.value)}
-            className="filter-select"
-          >
+          <select value={filterType} onChange={(e) => setFilterType(e.target.value)} className="filter-select">
             <option value="Tous">Tous les types</option>
             <option value="Appartement">Appartements</option>
             <option value="Maison">Maisons</option>
             <option value="Studio">Studios</option>
             <option value="Villa">Villas</option>
           </select>
-
-          <select
-            value={sortOrder || ""}
-            onChange={(e) => setSortOrder(e.target.value || null)}
-            className="filter-select"
-          >
+          <select value={sortOrder || ""} onChange={(e) => setSortOrder(e.target.value || null)} className="filter-select">
             <option value="">Trier par</option>
             <option value="asc">Prix croissant</option>
             <option value="desc">Prix décroissant</option>
           </select>
         </div>
 
+        {/* Statistiques */}
         <div className="biens-stats">
           <p>{filteredBiens.length} bien(s) trouvé(s)</p>
         </div>
 
+        {/* Liste des biens */}
         <ul className="biens-list">
-          {filteredBiens.map(bien => (
+          {filteredBiens.map((bien) => (
             <li key={bien.id} className="bien-card">
-              <div className="bien-image">
-                <img 
-                  src={getPropertyImage(bien)} 
-                  alt={bien.titre}
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                    const placeholder = e.target.parentNode.querySelector('.bien-image-placeholder');
-                    if (placeholder) placeholder.style.display = 'block';
-                  }}
-                />
-                <div className="bien-image-placeholder" style={{display: 'none'}}>
-                  🏠
-                </div>
+
+              {/* Galerie d'images - CORRIGÉ */}
+              <div className="bien-images">
+                {bien.images && bien.images.length > 0 ? (
+                  // Afficher seulement la première image pour l'instant
+                  <img
+                    src={getPropertyImageUrl(bien.images[0])}
+                    alt={bien.titre}
+                    onError={(e) => { 
+                      e.target.src = "https://via.placeholder.com/300x200?text=Pas+d'image";
+                    }}
+                    className="bien-image"
+                  />
+                ) : (
+                  <img
+                    src="https://via.placeholder.com/300x200?text=Pas+d'image"
+                    alt="Aucune image disponible"
+                    className="bien-image"
+                  />
+                )}
               </div>
-              
+
+              {/* Contenu du bien */}
               <div className="bien-content">
-                <h3>{bien.titre}</h3>
-                <p className="bien-type">Type : {bien.type}</p>
-                <p className="bien-location">
-                   {bien.ville} 
-                  {bien.adresse && ` - ${bien.adresse}`}
-                </p>
-                
-                <div className="bien-details">
-                  <span className="bien-chambres">{bien.chambres} chambre{bien.chambres > 1 ? 's' : ''}</span>
-                  <span className="bien-surface">{bien.surface} m²</span>
-                  {bien.salles_de_bain > 0 && (
-                    <span className="bien-sdb">{bien.salles_de_bain} SDB</span>
-                  )}
-                </div>
-                
-                <p className="bien-description">
-                  {bien.description && bien.description.length > 100 
-                    ? `${bien.description.substring(0, 100)}...` 
-                    : bien.description
-                  }
-                </p>
-                
-                <p className="bien-price">💰 {formatPrix(bien.prix)} €</p>
-                
-                <button 
-                  className="bien-link" 
-                  onClick={() => handleVoirBien(bien.id)}
-                >
-                  Voir le bien
-                </button>
+                <h3>{bien.titre || "Sans titre"}</h3>
+                <p>Type : {bien.type || "Non spécifié"}</p>
+                <p>{bien.ville} {bien.adresse && `- ${bien.adresse}`}</p>
+                <p>{bien.chambres} chambre(s), {bien.surface} m², {bien.salles_de_bain} SDB</p>
+                <p>💰 {formatPrix(bien.prix)} Dt</p>
+                <button onClick={() => handleVoirBien(bien.id)}>Voir le bien</button>
               </div>
             </li>
           ))}
-          
+
           {filteredBiens.length === 0 && (
             <li className="no-bien">
-              {search 
-                ? `Aucun bien trouvé pour "${search}"` 
-                : "Aucun bien disponible pour le moment"
-              }
+              {search ? `Aucun bien trouvé pour "${search}"` : "Aucun bien disponible pour le moment"}
             </li>
           )}
         </ul>
       </div>
 
+      {/* Modal */}
       {showSignInModal && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -247,14 +193,8 @@ export default function Acheter() {
             </div>
             <div className="modal-body">
               <p>Vous devez être connecté pour voir les détails de ce bien.</p>
-              <div className="modal-buttons">
-                <button className="btn-signin" onClick={() => window.location.href = '/login'}>
-                  Se connecter
-                </button>
-                <button className="btn-cancel" onClick={closeModal}>
-                  Annuler
-                </button>
-              </div>
+              <button onClick={() => (window.location.href = "/login")}>Se connecter</button>
+              <button onClick={closeModal}>Annuler</button>
             </div>
           </div>
         </div>

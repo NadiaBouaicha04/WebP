@@ -6,6 +6,82 @@
     <title>Gestion des Biens - ImmoPro</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/properties.css') }}">
+    <style>
+        /* Styles pour la validation des formulaires */
+        .form-group {
+            position: relative;
+        }
+
+        .validation-message {
+            font-size: 0.8rem;
+            margin-top: 5px;
+            padding: 6px 10px;
+            border-radius: 4px;
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+
+        .validation-message.error {
+            background: #fee;
+            color: #c33;
+            border: 1px solid #fcc;
+            display: block;
+        }
+
+        .validation-message.success {
+            background: #efe;
+            color: #363;
+            border: 1px solid #cfc;
+            display: block;
+        }
+
+        .form-group.invalid input,
+        .form-group.invalid select,
+        .form-group.invalid textarea {
+            border-color: #c33 !important;
+            background: #fee !important;
+        }
+
+        .form-group.valid input,
+        .form-group.valid select,
+        .form-group.valid textarea {
+            border-color: #363 !important;
+            background: #efe !important;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .char-counter {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-align: right;
+            margin-top: 4px;
+        }
+
+        .char-counter.warning {
+            color: #f39c12;
+        }
+
+        .char-counter.error {
+            color: #c33;
+        }
+
+        .input-hint {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+            font-style: italic;
+        }
+    </style>
 </head>
 <body>
     <div class="sidebar">
@@ -48,12 +124,12 @@
             </div>
             <div class="nav-right">
                 <div class="search-box">
-                    <input type="text" id="globalSearch" placeholder="Rechercher un bien...">
-                    <span>🔍</span>
+                    <input >
+                    <span></span>
                 </div>
-                <div class="notifications">🔔</div>
+                <div class="notifications"></div>
                 <div class="profile-menu">
-                    <div class="profile-avatar">N</div>
+                    <div class="profile-avatar"></div>
                 </div>
             </div>
         </div>
@@ -171,11 +247,15 @@
                     <div class="form-grid">
                         <div class="form-group">
                             <label for="titre">Titre *</label>
-                            <input type="text" id="titre" name="titre" required>
+                            <input type="text" id="titre" name="titre" required 
+                                   placeholder="Ex: Bel appartement centre-ville">
+                            <div class="input-hint">5-100 caractères</div>
                         </div>
+                        
                         <div class="form-group">
                             <label for="type">Type *</label>
                             <select id="type" name="type" required>
+                                <option value="">Sélectionnez un type</option>
                                 <option value="Appartement">Appartement</option>
                                 <option value="Maison">Maison</option>
                                 <option value="Studio">Studio</option>
@@ -184,50 +264,94 @@
                                 <option value="Duplex">Duplex</option>
                             </select>
                         </div>
+                        
                         <div class="form-group">
-                            <label for="prix">Prix (€) *</label>
-                            <input type="number" id="prix" name="prix" required>
+                            <label for="prix">Prix (DT) *</label>
+                            <input type="text" id="prix" name="prix" required 
+                                   placeholder="Ex: 150 000"
+                                   oninput="formatPrix(this)">
+                            <div class="input-hint">Format: 150 000</div>
                         </div>
+                        
                         <div class="form-group">
                             <label for="surface">Surface (m²) *</label>
-                            <input type="number" id="surface" name="surface" required>
+                            <input type="number" id="surface" name="surface" required 
+                                   min="10" max="5000" step="0.5"
+                                   placeholder="Ex: 85">
+                            <div class="input-hint">10-5000 m²</div>
                         </div>
+                        
                         <div class="form-group">
                             <label for="chambres">Nombre de chambres *</label>
-                            <input type="number" id="chambres" name="chambres" required>
+                            <input type="number" id="chambres" name="chambres" required 
+                                   min="0" max="20"
+                                   placeholder="Ex: 3">
+                            <div class="input-hint">0-20 chambres</div>
                         </div>
+                        
                         <div class="form-group">
-                            <label for="salles_de_bain">Salles de bain</label>
-                            <input type="number" id="salles_de_bain" name="salles_de_bain" value="1">
+                            <label for="salles_de_bain">Salles de bain *</label>
+                            <input type="number" id="salles_de_bain" name="salles_de_bain" required 
+                                   min="0" max="10" step="0.5"
+                                   placeholder="Ex: 1.5">
+                            <div class="input-hint">0-10 salles de bain</div>
                         </div>
+                        
                         <div class="form-group">
                             <label for="ville">Ville *</label>
-                            <input type="text" id="ville" name="ville" required>
+                            <input type="text" id="ville" name="ville" required 
+                                   pattern="[A-Za-zÀ-ÿ\s\-']{2,50}"
+                                   placeholder="Ex: Tunis">
+                            <div class="input-hint">Lettres et espaces uniquement</div>
                         </div>
+                        
                         <div class="form-group">
                             <label for="adresse">Adresse</label>
-                            <input type="text" id="adresse" name="adresse">
+                            <input type="text" id="adresse" name="adresse" 
+                                   maxlength="200"
+                                   placeholder="Ex: 12 Rue de la République">
                         </div>
+                        
                         <div class="form-group">
                             <label for="code_postal">Code postal</label>
-                            <input type="text" id="code_postal" name="code_postal">
+                            <input type="text" id="code_postal" name="code_postal" 
+                                   pattern="[0-9]{4}"
+                                   placeholder="Ex: 1000"
+                                   maxlength="4">
+                            <div class="input-hint">4 chiffres uniquement</div>
                         </div>
+                        
                         <div class="form-group">
                             <label for="etage">Étage</label>
-                            <input type="text" id="etage" name="etage">
+                            <input type="number" id="etage" name="etage" 
+                                   min="-5" max="200"
+                                   placeholder="Ex: 3">
+                            <div class="input-hint">-5 à 200</div>
                         </div>
+                        
                         <div class="form-group">
                             <label for="annee_construction">Année de construction</label>
-                            <input type="number" id="annee_construction" name="annee_construction">
+                            <input type="number" id="annee_construction" name="annee_construction" 
+                                   min="1800" max="2024"
+                                   placeholder="Ex: 2015">
+                            <div class="input-hint">1800-2024</div>
                         </div>
+                        
                         <div class="form-group full-width">
                             <label for="description">Description *</label>
-                            <textarea id="description" name="description" rows="4" required></textarea>
+                            <textarea id="description" name="description" rows="4" required 
+                                      minlength="20" maxlength="1000"
+                                      placeholder="Décrivez le bien en détail..."></textarea>
+                            <div class="input-hint">20-1000 caractères</div>
                         </div>
+                        
                         <div class="form-group full-width">
                             <label for="caracteristiques">Caractéristiques (séparées par des virgules)</label>
-                            <input type="text" id="caracteristiques" name="caracteristiques" placeholder="ascenseur, parking, balcon, piscine...">
+                            <input type="text" id="caracteristiques" name="caracteristiques" 
+                                   maxlength="200"
+                                   placeholder="Ex: ascenseur, parking, balcon, piscine, climatisation">
                         </div>
+                        
                         <div class="form-group full-width">
                             <label for="images">Images du bien</label>
                             <input type="file" id="images" name="images" multiple accept="image/*">
@@ -257,6 +381,898 @@
         </div>
     </div>
 
-    <script src="{{ url_for('static', filename='js/properties.js') }}"></script>
+    <!-- Modal de détails du bien -->
+    <div id="propertyDetailsModal" class="modal">
+        <div class="modal-content large-modal">
+            <div class="modal-header">
+                <h3 id="detailsModalTitle">Détails du bien</h3>
+                <span class="close" onclick="closePropertyDetailsModal()">&times;</span>
+            </div>
+            
+            <div class="modal-body">
+                <div id="propertyDetailsContent">
+                    <!-- Contenu chargé dynamiquement -->
+                    <div class="loading-spinner">Chargement des détails...</div>
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" class="btn-cancel" onclick="closePropertyDetailsModal()">Fermer</button>
+                <button type="button" class="btn-save" onclick="editPropertyFromDetails()">Modifier</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript complet avec contrôle de saisie robuste
+        let properties = [];
+        let currentPage = 1;
+        const propertiesPerPage = 9;
+
+        // Chargement initial
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("🚀 Initialisation page biens...");
+            loadProperties();
+            initializeEventListeners();
+            initializeFormValidation();
+        });
+
+        // Initialiser les écouteurs d'événements
+        function initializeEventListeners() {
+            // Gestion de l'upload d'images
+            document.getElementById('images').addEventListener('change', handleImageUpload);
+            
+            // Recherche en temps réel
+            let searchTimeout;
+            document.getElementById('propertySearch').addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    filterProperties();
+                }, 300);
+            });
+        }
+
+        // Contrôle de saisie pour le formulaire de propriété
+        function initializeFormValidation() {
+            const form = document.getElementById('propertyForm');
+            const inputs = form.querySelectorAll('input, select, textarea');
+            
+            inputs.forEach(input => {
+                // Validation en temps réel
+                input.addEventListener('input', function() {
+                    validateField(this);
+                });
+                
+                // Validation à la perte de focus
+                input.addEventListener('blur', function() {
+                    validateField(this);
+                });
+            });
+            
+            // Validation spécifique pour les nombres
+            const numberInputs = ['prix', 'surface', 'chambres', 'salles_de_bain', 'etage', 'annee_construction'];
+            numberInputs.forEach(id => {
+                const input = document.getElementById(id);
+                if (input) {
+                    input.addEventListener('input', function() {
+                        validateNumberField(this);
+                    });
+                }
+            });
+
+            // Compteur de caractères pour la description
+            const descriptionInput = document.getElementById('description');
+            descriptionInput.addEventListener('input', function() {
+                updateCharCounter(this, 1000);
+                validateField(this);
+            });
+
+            // Compteur de caractères pour le titre
+            const titreInput = document.getElementById('titre');
+            titreInput.addEventListener('input', function() {
+                updateCharCounter(this, 100);
+                validateField(this);
+            });
+        }
+
+        // Validation d'un champ spécifique
+        function validateField(field) {
+            const formGroup = field.closest('.form-group');
+            const validationMessage = formGroup.querySelector('.validation-message');
+            
+            // Supprimer les classes précédentes
+            formGroup.classList.remove('valid', 'invalid');
+            
+            // Validation basique required
+            if (field.hasAttribute('required') && !field.value.trim()) {
+                showValidationError(formGroup, 'Ce champ est obligatoire');
+                return false;
+            }
+            
+            if (!field.value.trim()) {
+                // Champ vide mais pas required - c'est ok
+                hideValidationMessage(formGroup);
+                return true;
+            }
+            
+            // Validation spécifique par type de champ
+            let isValid = true;
+            let message = '';
+            
+            switch(field.id) {
+                case 'titre':
+                    isValid = validateTitre(field.value);
+                    if (!isValid) message = 'Le titre doit contenir entre 5 et 100 caractères';
+                    break;
+                case 'prix':
+                    isValid = validatePrix(field.value);
+                    if (!isValid) message = 'Le prix doit être un nombre positif (ex: 150000 ou 150 000)';
+                    break;
+                case 'surface':
+                    isValid = validateSurface(field.value);
+                    if (!isValid) message = 'La surface doit être entre 10 et 5000 m²';
+                    break;
+                case 'chambres':
+                    isValid = validateChambres(field.value);
+                    if (!isValid) message = 'Le nombre de chambres doit être entre 0 et 20';
+                    break;
+                case 'salles_de_bain':
+                    isValid = validateSallesDeBain(field.value);
+                    if (!isValid) message = 'Le nombre de salles de bain doit être entre 0 et 10';
+                    break;
+                case 'ville':
+                    isValid = validateVille(field.value);
+                    if (!isValid) message = 'La ville ne doit contenir que des lettres (2-50 caractères)';
+                    break;
+                case 'code_postal':
+                    isValid = validateCodePostal(field.value);
+                    if (!isValid) message = 'Le code postal doit contenir exactement 4 chiffres';
+                    break;
+                case 'etage':
+                    isValid = validateEtage(field.value);
+                    if (!isValid) message = "L'étage doit être un nombre entre -5 et 200";
+                    break;
+                case 'annee_construction':
+                    isValid = validateAnneeConstruction(field.value);
+                    if (!isValid) message = "L'année doit être entre 1800 et 2024";
+                    break;
+                case 'description':
+                    isValid = validateDescription(field.value);
+                    if (!isValid) message = 'La description doit contenir entre 20 et 1000 caractères';
+                    break;
+                case 'adresse':
+                    isValid = validateAdresse(field.value);
+                    if (!isValid) message = "L'adresse ne doit pas dépasser 200 caractères";
+                    break;
+            }
+            
+            if (!isValid) {
+                showValidationError(formGroup, message);
+                return false;
+            } else {
+                showValidationSuccess(formGroup);
+                return true;
+            }
+        }
+
+        // Validation des champs numériques
+        function validateNumberField(input) {
+            // Empêcher les caractères non numériques sauf pour le prix qui a des espaces
+            if (input.id !== 'prix') {
+                input.value = input.value.replace(/[^0-9.]/g, '');
+                
+                // Pour les champs avec décimales
+                if (input.id === 'salles_de_bain' || input.id === 'surface') {
+                    // Permettre un seul point décimal
+                    const parts = input.value.split('.');
+                    if (parts.length > 2) {
+                        input.value = parts[0] + '.' + parts[1];
+                    }
+                } else {
+                    // Pas de décimales pour les autres champs
+                    input.value = input.value.replace(/\./g, '');
+                }
+            }
+            
+            validateField(input);
+        }
+
+        // Fonctions de validation spécifiques
+        function validateTitre(value) {
+            return value.length >= 5 && value.length <= 100;
+        }
+
+        function validatePrix(value) {
+            const numericValue = parseFloat(value.replace(/\s/g, ''));
+            return !isNaN(numericValue) && numericValue > 0 && numericValue <= 1000000000;
+        }
+
+        function validateSurface(value) {
+            const numericValue = parseFloat(value);
+            return !isNaN(numericValue) && numericValue >= 10 && numericValue <= 5000;
+        }
+
+        function validateChambres(value) {
+            const numericValue = parseInt(value);
+            return !isNaN(numericValue) && numericValue >= 0 && numericValue <= 20;
+        }
+
+        function validateSallesDeBain(value) {
+            const numericValue = parseFloat(value);
+            return !isNaN(numericValue) && numericValue >= 0 && numericValue <= 10;
+        }
+
+        function validateVille(value) {
+            const villeRegex = /^[A-Za-zÀ-ÿ\s\-']{2,50}$/;
+            return villeRegex.test(value);
+        }
+
+        function validateCodePostal(value) {
+            const cpRegex = /^\d{4}$/;
+            return cpRegex.test(value);
+        }
+
+        function validateEtage(value) {
+            const numericValue = parseInt(value);
+            return !isNaN(numericValue) && numericValue >= -5 && numericValue <= 200;
+        }
+
+        function validateAnneeConstruction(value) {
+            const numericValue = parseInt(value);
+            const currentYear = new Date().getFullYear();
+            return !isNaN(numericValue) && numericValue >= 1800 && numericValue <= currentYear;
+        }
+
+        function validateDescription(value) {
+            return value.length >= 20 && value.length <= 1000;
+        }
+
+        function validateAdresse(value) {
+            return value.length <= 200;
+        }
+
+        // Afficher les messages d'erreur
+        function showValidationError(formGroup, message) {
+            formGroup.classList.add('invalid');
+            formGroup.classList.remove('valid');
+            
+            let validationMessage = formGroup.querySelector('.validation-message');
+            if (!validationMessage) {
+                validationMessage = document.createElement('div');
+                validationMessage.className = 'validation-message error';
+                formGroup.appendChild(validationMessage);
+            }
+            
+            validationMessage.textContent = message;
+            validationMessage.className = 'validation-message error';
+        }
+
+        function showValidationSuccess(formGroup) {
+            formGroup.classList.add('valid');
+            formGroup.classList.remove('invalid');
+            hideValidationMessage(formGroup);
+        }
+
+        function hideValidationMessage(formGroup) {
+            const validationMessage = formGroup.querySelector('.validation-message');
+            if (validationMessage) {
+                validationMessage.style.display = 'none';
+            }
+        }
+
+        // Formater le prix avec espaces
+        function formatPrix(input) {
+            let value = input.value.replace(/\s/g, '');
+            if (value === '') return;
+            
+            // Formater avec des espaces tous les 3 chiffres
+            value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+            input.value = value;
+            
+            validateField(input);
+        }
+
+        // Compteur de caractères
+        function updateCharCounter(textarea, maxLength) {
+            let counter = textarea.parentNode.querySelector('.char-counter');
+            if (!counter) {
+                counter = document.createElement('div');
+                counter.className = 'char-counter';
+                textarea.parentNode.appendChild(counter);
+            }
+            
+            const length = textarea.value.length;
+            counter.textContent = `${length}/${maxLength} caractères`;
+            
+            if (length > maxLength * 0.9) {
+                counter.className = 'char-counter warning';
+            } else if (length > maxLength) {
+                counter.className = 'char-counter error';
+            } else {
+                counter.className = 'char-counter';
+            }
+        }
+
+        // Validation globale du formulaire avant soumission
+        function validateForm() {
+            const form = document.getElementById('propertyForm');
+            const inputs = form.querySelectorAll('input[required], select[required], textarea[required]');
+            let isValid = true;
+            let firstInvalid = null;
+            
+            inputs.forEach(input => {
+                if (!validateField(input)) {
+                    isValid = false;
+                    if (!firstInvalid) {
+                        firstInvalid = input;
+                    }
+                }
+            });
+            
+            // Scroll vers le premier champ invalide
+            if (firstInvalid) {
+                firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstInvalid.focus();
+            }
+            
+            return isValid;
+        }
+
+        // Navigation sidebar
+        function initializeSidebarNavigation() {
+            const navItems = document.querySelectorAll('.nav-item:not(.active):not(.logout)');
+            navItems.forEach(item => {
+                item.style.cursor = 'pointer';
+                item.addEventListener('click', function() {
+                    const text = this.textContent.trim();
+                    switch(text) {
+                        case '📊 Dashboard':
+                            window.location.href = '/admin/dashboard';
+                            break;
+                        case '👤 Gestion Clients':
+                            window.location.href = '/admin/clients';
+                            break;
+                        case '📅 Rendez-vous':
+                            window.location.href = '/admin/appointments';
+                            break;
+                        case '💰 Transactions':
+                            window.location.href = '/admin/transactions';
+                            break;
+                        case '📋 Contrats':
+                            window.location.href = '/admin/contracts';
+                            break;
+                        case '⚙️ Paramètres':
+                            window.location.href = '/admin/settings';
+                            break;
+                    }
+                });
+            });
+        }
+
+        // Déconnexion
+        function logout() {
+            if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+                window.location.href = '/admin/logout';
+            }
+        }
+
+        // Charger les biens
+        async function loadProperties() {
+            try {
+                showLoading();
+                console.log(" Chargement des biens depuis /api/properties...");
+                
+                const response = await fetch('/api/properties');
+                console.log(" Réponse reçue:", response.status, response.statusText);
+                
+                if (!response.ok) {
+                    throw new Error(`Erreur HTTP: ${response.status} - ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log(" Données brutes reçues:", data);
+                
+                properties = Array.isArray(data.properties) ? data.properties : [];
+                console.log(` ${properties.length} biens chargés`);
+                
+                renderPropertiesGrid();
+                updatePagination();
+                updateStats();
+                updateVilleFilter();
+                hideLoading();
+                
+            } catch (error) {
+                console.error(' Erreur détaillée:', error);
+                
+                const grid = document.getElementById('propertiesGrid');
+                grid.innerHTML = `
+                    <div class="loading-spinner" style="grid-column: 1 / -1;">
+                        <div> Erreur lors du chargement des biens</div>
+                        <div style="font-size: 0.8rem; margin-top: 10px; font-family: monospace;">
+                            ${error.message}
+                        </div>
+                        <div style="margin-top: 20px;">
+                            <button onclick="loadProperties()" style="margin: 5px; padding: 8px 16px; background: var(--primary); color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                Réessayer
+                            </button>
+                        </div>
+                    </div>
+                `;
+                hideLoading();
+            }
+        }
+
+        // Rendu de la grille des biens
+        function renderPropertiesGrid() {
+            const grid = document.getElementById('propertiesGrid');
+            const filteredProperties = getFilteredProperties();
+            const paginatedProperties = getPaginatedProperties(filteredProperties);
+            
+            console.log(" Rendu grille:", {
+                totalProperties: properties.length,
+                filtered: filteredProperties.length,
+                paginated: paginatedProperties.length
+            });
+            
+            grid.innerHTML = '';
+            
+            if (paginatedProperties.length === 0) {
+                grid.innerHTML = `
+                    <div class="loading-spinner" style="grid-column: 1 / -1;">
+                        ${properties.length === 0 ? 'Aucun bien trouvé dans la base de données' : 'Aucun bien ne correspond aux filtres'}
+                    </div>
+                `;
+                return;
+            }
+            
+            paginatedProperties.forEach((property, index) => {
+                console.log(` Rendu bien ${index}:`, property);
+                
+                const firstImage = property.images && property.images.length > 0 
+                    ? property.images[0] 
+                    : null;
+                
+                const card = document.createElement('div');
+                card.className = 'property-card';
+                card.innerHTML = `
+                    <div class="property-image">
+                        ${firstImage ? 
+                            `<img src="${firstImage}" alt="${escapeHtml(property.titre)}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">` : 
+                            ''
+                        }
+                        <div class="no-image" ${firstImage ? 'style="display: none;"' : ''}>
+                            🏠
+                        </div>
+                        <span class="property-badge badge-${property.statut}">
+                            ${getStatusLabel(property.statut)}
+                        </span>
+                    </div>
+                    <div class="property-info">
+                        <div class="property-header">
+                            <h3 class="property-title">${escapeHtml(property.titre)}</h3>
+                            <div class="property-price">${property.prix.toLocaleString()} DT</div>
+                        </div>
+                        <p class="property-type">${getTypeLabel(property.type)} • ${escapeHtml(property.ville)}</p>
+                        <div class="property-location">
+                             ${escapeHtml(property.adresse || property.ville)}
+                        </div>
+                        <div class="property-details">
+                            <div class="detail-item">
+                                <div class="detail-value">${property.surface}m²</div>
+                                <div class="detail-label">Surface</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-value">${property.chambres}</div>
+                                <div class="detail-label">Chambres</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-value">${property.salles_de_bain}</div>
+                                <div class="detail-label">SDB</div>
+                            </div>
+                        </div>
+                        <p class="property-description">${escapeHtml(property.description)}</p>
+                        <div class="property-actions">
+                            <button class="action-btn btn-view" onclick="viewProperty('${property.id}')" title="Voir">
+                                👁️ Voir
+                            </button>
+                            <button class="action-btn btn-edit" onclick="editProperty('${property.id}')" title="Modifier">
+                                ✏️ Modifier
+                            </button>
+                            <button class="action-btn btn-delete" onclick="deleteProperty('${property.id}')" title="Supprimer">
+                                🗑️ Supprimer
+                            </button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Fonctions utilitaires
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function getTypeLabel(type) {
+            const labels = {
+                'Appartement': 'Appartement',
+                'Maison': 'Maison', 
+                'Studio': 'Studio',
+                'Villa': 'Villa',
+                'Loft': 'Loft',
+                'Duplex': 'Duplex'
+            };
+            return labels[type] || type;
+        }
+
+        function getStatusLabel(status) {
+            const labels = {
+                'disponible': 'Disponible',
+                'vendu': 'Vendu',
+                'en_attente': 'En attente'
+            };
+            return labels[status] || status;
+        }
+
+        function showLoading() {
+            const grid = document.getElementById('propertiesGrid');
+            grid.innerHTML = `
+                <div class="loading-spinner" style="grid-column: 1 / -1;">
+                    Chargement des biens...
+                </div>
+            `;
+        }
+
+        function hideLoading() {
+            // Le rendu se fait via renderPropertiesGrid()
+        }
+
+        function updateStats() {
+            const total = properties.length;
+            const available = properties.filter(p => p.statut === 'disponible').length;
+            const sold = properties.filter(p => p.statut === 'vendu').length;
+            const totalValue = properties.reduce((sum, p) => sum + p.prix, 0);
+            
+            document.getElementById('totalProperties').textContent = total;
+            document.getElementById('availableProperties').textContent = available;
+            document.getElementById('soldProperties').textContent = sold;
+            document.getElementById('totalValue').textContent = totalValue.toLocaleString() + ' DT';
+        }
+
+        function updateVilleFilter() {
+            const villes = [...new Set(properties.map(p => p.ville).filter(Boolean))];
+            const select = document.getElementById('villeFilter');
+            
+            // Garder l'option "Toutes les villes"
+            const currentValue = select.value;
+            select.innerHTML = '<option value="all">Toutes les villes</option>';
+            
+            villes.forEach(ville => {
+                const option = document.createElement('option');
+                option.value = ville;
+                option.textContent = ville;
+                select.appendChild(option);
+            });
+            
+            // Restaurer la valeur sélectionnée si possible
+            if (villes.includes(currentValue)) {
+                select.value = currentValue;
+            }
+        }
+
+        // Filtrage et pagination
+        function getFilteredProperties() {
+            const searchTerm = document.getElementById('propertySearch').value.toLowerCase();
+            const typeFilter = document.getElementById('typeFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            const villeFilter = document.getElementById('villeFilter').value;
+            
+            return properties.filter(property => {
+                const matchesSearch = !searchTerm || 
+                    (property.titre && property.titre.toLowerCase().includes(searchTerm)) ||
+                    (property.description && property.description.toLowerCase().includes(searchTerm)) ||
+                    (property.ville && property.ville.toLowerCase().includes(searchTerm));
+                
+                const matchesType = typeFilter === 'all' || property.type === typeFilter;
+                const matchesStatus = statusFilter === 'all' || property.statut === statusFilter;
+                const matchesVille = villeFilter === 'all' || property.ville === villeFilter;
+                
+                return matchesSearch && matchesType && matchesStatus && matchesVille;
+            });
+        }
+
+        function getPaginatedProperties(filteredProperties) {
+            const startIndex = (currentPage - 1) * propertiesPerPage;
+            return filteredProperties.slice(startIndex, startIndex + propertiesPerPage);
+        }
+
+        function updatePagination() {
+            const filteredProperties = getFilteredProperties();
+            const totalPages = Math.ceil(filteredProperties.length / propertiesPerPage);
+            
+            document.getElementById('pageInfo').textContent = `Page ${currentPage} sur ${totalPages}`;
+            document.getElementById('prevPage').disabled = currentPage === 1;
+            document.getElementById('nextPage').disabled = currentPage === totalPages || totalPages === 0;
+        }
+
+        function changePage(direction) {
+            const filteredProperties = getFilteredProperties();
+            const totalPages = Math.ceil(filteredProperties.length / propertiesPerPage);
+            
+            currentPage += direction;
+            if (currentPage < 1) currentPage = 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            
+            renderPropertiesGrid();
+            updatePagination();
+        }
+
+        function filterProperties() {
+            currentPage = 1;
+            renderPropertiesGrid();
+            updatePagination();
+        }
+
+        // Gestion des modals
+        function showAddPropertyModal() {
+            document.getElementById('modalTitle').textContent = 'Ajouter un bien';
+            document.getElementById('propertyForm').reset();
+            document.getElementById('propertyForm').dataset.editingId = '';
+            document.getElementById('imagePreview').innerHTML = '';
+            document.getElementById('propertyModal').style.display = 'block';
+            
+            // Réinitialiser la validation
+            setTimeout(() => {
+                const formGroups = document.querySelectorAll('.form-group');
+                formGroups.forEach(group => {
+                    group.classList.remove('valid', 'invalid');
+                    const validationMessage = group.querySelector('.validation-message');
+                    if (validationMessage) {
+                        validationMessage.style.display = 'none';
+                    }
+                    const charCounter = group.querySelector('.char-counter');
+                    if (charCounter) {
+                        charCounter.remove();
+                    }
+                });
+            }, 100);
+        }
+
+        function closePropertyModal() {
+            document.getElementById('propertyModal').style.display = 'none';
+            document.getElementById('propertyForm').dataset.editingId = '';
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').style.display = 'none';
+        }
+
+        // Gestion de l'upload d'images
+        function handleImageUpload(e) {
+            const preview = document.getElementById('imagePreview');
+            preview.innerHTML = '';
+            
+            Array.from(e.target.files).forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const div = document.createElement('div');
+                        div.className = 'preview-image';
+                        div.innerHTML = `
+                            <img src="${e.target.result}" alt="Preview">
+                            <button type="button" class="remove-image" onclick="this.parentElement.remove()">×</button>
+                        `;
+                        preview.appendChild(div);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        // Sauvegarder un bien
+        async function saveProperty() {
+            if (!validateForm()) {
+                alert('Veuillez corriger les erreurs dans le formulaire avant de soumettre.');
+                return;
+            }
+            
+            const form = document.getElementById('propertyForm');
+            const formData = new FormData(form);
+            const editingId = form.dataset.editingId;
+            
+            // Nettoyer les données avant envoi
+            const prix = document.getElementById('prix').value.replace(/\s/g, '');
+            formData.set('prix', prix);
+            
+            try {
+                const url = editingId ? `/api/properties/${editingId}` : '/api/properties';
+                const method = editingId ? 'PUT' : 'POST';
+                
+                console.log('📤 Envoi des données:', {
+                    url: url,
+                    method: method,
+                    editingId: editingId
+                });
+                
+                const response = await fetch(url, {
+                    method: method,
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Erreur ${response.status}: ${errorText}`);
+                }
+                
+                const result = await response.json();
+                console.log('✅ Bien sauvegardé:', result);
+                
+                closePropertyModal();
+                loadProperties();
+                
+                alert(editingId ? 'Bien modifié avec succès' : 'Bien ajouté avec succès');
+                
+            } catch (error) {
+                console.error('❌ Erreur sauvegarde:', error);
+                alert('Erreur lors de la sauvegarde du bien: ' + error.message);
+            }
+        }
+
+        // Fonctions pour les biens
+        function viewProperty(propertyId) {
+            const property = properties.find(p => p.id === propertyId);
+            if (!property) return;
+            
+            document.getElementById('detailsModalTitle').textContent = property.titre;
+            
+            const detailsContent = document.getElementById('propertyDetailsContent');
+            detailsContent.innerHTML = `
+                <div class="property-details-container">
+                    <div class="details-header">
+                        <div class="details-price-status">
+                            <h2 class="details-price">${property.prix.toLocaleString()} DT</h2>
+                            <span class="property-badge badge-${property.statut}">${getStatusLabel(property.statut)}</span>
+                        </div>
+                        <p class="details-type-location">
+                            ${getTypeLabel(property.type)} • ${property.ville}
+                            ${property.adresse ? ` • ${property.adresse}` : ''}
+                        </p>
+                    </div>
+                    
+                    <div class="details-main-info">
+                        <h4>Informations principales</h4>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <span class="info-label">Surface</span>
+                                <span class="info-value">${property.surface} m²</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Chambres</span>
+                                <span class="info-value">${property.chambres}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Salles de bain</span>
+                                <span class="info-value">${property.salles_de_bain}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Étage</span>
+                                <span class="info-value">${property.etage || 'Non spécifié'}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Année construction</span>
+                                <span class="info-value">${property.annee_construction || 'Non spécifiée'}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Code postal</span>
+                                <span class="info-value">${property.code_postal || 'Non spécifié'}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="details-description">
+                        <h4>Description</h4>
+                        <p>${property.description || 'Aucune description disponible.'}</p>
+                    </div>
+                </div>
+            `;
+            
+            detailsContent.dataset.currentPropertyId = propertyId;
+            document.getElementById('propertyDetailsModal').style.display = 'block';
+        }
+
+        function editProperty(propertyId) {
+            const property = properties.find(p => p.id === propertyId);
+            if (!property) return;
+            
+            document.getElementById('modalTitle').textContent = 'Modifier le bien';
+            document.getElementById('titre').value = property.titre;
+            document.getElementById('description').value = property.description;
+            document.getElementById('type').value = property.type;
+            document.getElementById('prix').value = property.prix.toLocaleString();
+            document.getElementById('surface').value = property.surface;
+            document.getElementById('chambres').value = property.chambres;
+            document.getElementById('salles_de_bain').value = property.salles_de_bain;
+            document.getElementById('ville').value = property.ville;
+            document.getElementById('adresse').value = property.adresse || '';
+            document.getElementById('code_postal').value = property.code_postal || '';
+            document.getElementById('etage').value = property.etage || '';
+            document.getElementById('annee_construction').value = property.annee_construction || '';
+            document.getElementById('caracteristiques').value = property.caracteristiques ? property.caracteristiques.join(', ') : '';
+            
+            // Afficher les images existantes
+            const preview = document.getElementById('imagePreview');
+            preview.innerHTML = '';
+            if (property.images && property.images.length > 0) {
+                property.images.forEach(image => {
+                    const div = document.createElement('div');
+                    div.className = 'preview-image';
+                    div.innerHTML = `
+                        <img src="${image}" alt="Existing image">
+                        <span class="remove-image" style="background: #666;">✓</span>
+                    `;
+                    preview.appendChild(div);
+                });
+            }
+            
+            document.getElementById('propertyForm').dataset.editingId = propertyId;
+            document.getElementById('propertyModal').style.display = 'block';
+            
+            // Valider les champs après remplissage
+            setTimeout(() => {
+                const inputs = document.querySelectorAll('#propertyForm input, #propertyForm select, #propertyForm textarea');
+                inputs.forEach(input => validateField(input));
+            }, 100);
+        }
+
+        function deleteProperty(propertyId) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer ce bien ? Cette action est irréversible.')) {
+                fetch(`/api/properties/${propertyId}`, {
+                    method: 'DELETE'
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error('Erreur lors de la suppression');
+                    return response.json();
+                })
+                .then(result => {
+                    console.log('✅ Bien supprimé:', result);
+                    loadProperties();
+                    alert('Bien supprimé avec succès');
+                })
+                .catch(error => {
+                    console.error('❌ Erreur suppression:', error);
+                    alert('Erreur lors de la suppression du bien: ' + error.message);
+                });
+            }
+        }
+
+        function exportProperties() {
+            alert('Fonctionnalité à implémenter: Exporter les biens');
+        }
+
+        function closePropertyDetailsModal() {
+            document.getElementById('propertyDetailsModal').style.display = 'none';
+        }
+
+        function editPropertyFromDetails() {
+            const propertyId = document.getElementById('propertyDetailsContent').dataset.currentPropertyId;
+            if (propertyId) {
+                closePropertyDetailsModal();
+                editProperty(propertyId);
+            }
+        }
+
+        // Fermer les modals en cliquant à l'extérieur
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+    </script>
 </body>
 </html>

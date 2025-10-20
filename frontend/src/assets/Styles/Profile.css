@@ -239,7 +239,7 @@
 }
 
 .btn-favorites {
-  background: linear-gradient(135deg, #8798e4, #c0392b);
+  background: linear-gradient(135deg, #8798e4, #64be86);
   color: white;
 }
 
@@ -249,7 +249,7 @@
 }
 
 .btn-edit {
-  background: linear-gradient(135deg, #494c4e, #2980b9);
+  background: linear-gradient(135deg, #494c4e, #4caa6b);
   color: white;
 }
 

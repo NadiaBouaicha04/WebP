@@ -120,7 +120,7 @@ def create_auth_routes(mongo, bcrypt):
             }), 201
 
         except Exception as e:
-            print(f"❌ Erreur inscription: {e}")
+            print(f" Erreur inscription: {e}")
             return jsonify({"error": "Erreur interne du serveur"}), 500
 
     # -------------------
@@ -173,7 +173,7 @@ def create_auth_routes(mongo, bcrypt):
             }), 200
 
         except Exception as e:
-            print(f"❌ Erreur connexion: {e}")
+            print(f" Erreur connexion: {e}")
             return jsonify({"error": "Erreur interne du serveur"}), 500
 
     # -------------------
@@ -187,7 +187,7 @@ def create_auth_routes(mongo, bcrypt):
             # Pour l'instant, on se contente de supprimer le token côté client
             return jsonify({"message": "Déconnexion réussie"}), 200
         except Exception as e:
-            print(f"❌ Erreur déconnexion: {e}")
+            print(f" Erreur déconnexion: {e}")
             return jsonify({"error": "Erreur lors de la déconnexion"}), 500
 
     # -------------------
@@ -215,7 +215,7 @@ def create_auth_routes(mongo, bcrypt):
             }), 200
             
         except Exception as e:
-            print(f"❌ Erreur profil: {e}")
+            print(f" Erreur profil: {e}")
             return jsonify({"error": "Erreur d'authentification"}), 401
 
     return auth_bp

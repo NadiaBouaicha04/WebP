@@ -71,20 +71,20 @@ function logout() {
 async function loadProperties() {
     try {
         showLoading();
-        console.log("🔄 Chargement des biens depuis /api/properties...");
+        console.log(" Chargement des biens depuis /api/properties...");
         
         const response = await fetch('/api/properties');
-        console.log("📡 Réponse reçue:", response.status, response.statusText);
+        console.log(" Réponse reçue:", response.status, response.statusText);
         
         if (!response.ok) {
             throw new Error(`Erreur HTTP: ${response.status} - ${response.statusText}`);
         }
         
         const data = await response.json();
-        console.log("📦 Données brutes reçues:", data);
+        console.log(" Données brutes reçues:", data);
         
         properties = Array.isArray(data.properties) ? data.properties : [];
-        console.log(`✅ ${properties.length} biens chargés`);
+        console.log(` ${properties.length} biens chargés`);
         
         renderPropertiesGrid();
         updatePagination();
@@ -93,12 +93,12 @@ async function loadProperties() {
         hideLoading();
         
     } catch (error) {
-        console.error('❌ Erreur détaillée:', error);
+        console.error(' Erreur détaillée:', error);
         
         const grid = document.getElementById('propertiesGrid');
         grid.innerHTML = `
             <div class="loading-spinner" style="grid-column: 1 / -1;">
-                <div>❌ Erreur lors du chargement des biens</div>
+                <div> Erreur lors du chargement des biens</div>
                 <div style="font-size: 0.8rem; margin-top: 10px; font-family: monospace;">
                     ${error.message}
                 </div>
@@ -119,7 +119,7 @@ function renderPropertiesGrid() {
     const filteredProperties = getFilteredProperties();
     const paginatedProperties = getPaginatedProperties(filteredProperties);
     
-    console.log("🎨 Rendu grille:", {
+    console.log(" Rendu grille:", {
         totalProperties: properties.length,
         filtered: filteredProperties.length,
         paginated: paginatedProperties.length
@@ -137,7 +137,7 @@ function renderPropertiesGrid() {
     }
     
     paginatedProperties.forEach((property, index) => {
-        console.log(`📝 Rendu bien ${index}:`, property);
+        console.log(` Rendu bien ${index}:`, property);
         
         const firstImage = property.images && property.images.length > 0 
             ? property.images[0] 
@@ -152,7 +152,7 @@ function renderPropertiesGrid() {
                     ''
                 }
                 <div class="no-image" ${firstImage ? 'style="display: none;"' : ''}>
-                    🏠
+                    
                 </div>
                 <span class="property-badge badge-${property.statut}">
                     ${getStatusLabel(property.statut)}
@@ -161,11 +161,11 @@ function renderPropertiesGrid() {
             <div class="property-info">
                 <div class="property-header">
                     <h3 class="property-title">${escapeHtml(property.titre)}</h3>
-                    <div class="property-price">${property.prix.toLocaleString()}€</div>
+                    <div class="property-price">${property.prix.toLocaleString()}Dt</div>
                 </div>
                 <p class="property-type">${getTypeLabel(property.type)} • ${escapeHtml(property.ville)}</p>
                 <div class="property-location">
-                    📍 ${escapeHtml(property.adresse || property.ville)}
+                     ${escapeHtml(property.adresse || property.ville)}
                 </div>
                 <div class="property-details">
                     <div class="detail-item">
@@ -184,13 +184,13 @@ function renderPropertiesGrid() {
                 <p class="property-description">${escapeHtml(property.description)}</p>
                 <div class="property-actions">
                     <button class="action-btn btn-view" onclick="viewProperty('${property.id}')" title="Voir">
-                        👁️ Voir
+                         Voir
                     </button>
                     <button class="action-btn btn-edit" onclick="editProperty('${property.id}')" title="Modifier">
-                        ✏️ Modifier
+                         Modifier
                     </button>
                     <button class="action-btn btn-delete" onclick="deleteProperty('${property.id}')" title="Supprimer">
-                        🗑️ Supprimer
+                         Supprimer
                     </button>
                 </div>
             </div>
@@ -250,7 +250,7 @@ function updateStats() {
     document.getElementById('totalProperties').textContent = total;
     document.getElementById('availableProperties').textContent = available;
     document.getElementById('soldProperties').textContent = sold;
-    document.getElementById('totalValue').textContent = totalValue.toLocaleString() + '€';
+    document.getElementById('totalValue').textContent = totalValue.toLocaleString() + 'Dt';
 }
 
 function updateVilleFilter() {
@@ -483,4 +483,193 @@ window.onclick = function(event) {
             modal.style.display = 'none';
         }
     });
+}
+// Afficher les détails d'un bien dans un modal
+async function viewProperty(propertyId) {
+    try {
+        console.log("🔍 Chargement des détails du bien:", propertyId);
+        
+        // Afficher le modal immédiatement avec un indicateur de chargement
+        document.getElementById('detailsModalTitle').textContent = 'Chargement...';
+        document.getElementById('propertyDetailsModal').style.display = 'block';
+        
+        const response = await fetch(`/api/properties/${propertyId}`);
+        
+        if (!response.ok) {
+            throw new Error(`Erreur HTTP: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (!data.success) {
+            throw new Error(data.error || 'Erreur lors du chargement des détails');
+        }
+        
+        const property = data.property;
+        renderPropertyDetails(property);
+        
+    } catch (error) {
+        console.error('❌ Erreur chargement détails:', error);
+        document.getElementById('propertyDetailsContent').innerHTML = `
+            <div class="error-message">
+                <h4>Erreur lors du chargement</h4>
+                <p>${error.message}</p>
+                <button onclick="viewProperty('${propertyId}')" class="btn-save">Réessayer</button>
+            </div>
+        `;
+    }
+}
+
+// Rendre les détails du bien dans le modal
+function renderPropertyDetails(property) {
+    document.getElementById('detailsModalTitle').textContent = property.titre;
+    
+    const detailsContent = document.getElementById('propertyDetailsContent');
+    
+    // Formater les caractéristiques
+    const caracteristiques = Array.isArray(property.caracteristiques) 
+        ? property.caracteristiques 
+        : (property.caracteristiques ? [property.caracteristiques] : []);
+    
+    // Formater le statut avec badge
+    const statusBadge = `<span class="property-badge badge-${property.statut}">${getStatusLabel(property.statut)}</span>`;
+    
+    // Galerie d'images
+    const imagesGallery = property.images && property.images.length > 0 
+        ? property.images.map(img => `
+            <div class="gallery-image">
+                <img src="${img}" alt="${property.titre}" onclick="openImageLightbox('${img}')">
+            </div>
+        `).join('')
+        : `<div class="no-images">Aucune image disponible</div>`;
+    
+    detailsContent.innerHTML = `
+        <div class="property-details-container">
+            <!-- En-tête avec prix et statut -->
+            <div class="details-header">
+                <div class="details-price-status">
+                    <h2 class="details-price">${property.prix.toLocaleString()} Dt</h2>
+                    ${statusBadge}
+                </div>
+                <p class="details-type-location">
+                    ${getTypeLabel(property.type)} • ${property.ville}
+                    ${property.adresse ? ` • ${property.adresse}` : ''}
+                </p>
+            </div>
+            
+            <!-- Galerie d'images -->
+            <div class="details-gallery">
+                <h4>Galerie photos</h4>
+                <div class="gallery-grid">
+                    ${imagesGallery}
+                </div>
+            </div>
+            
+            <!-- Informations principales -->
+            <div class="details-main-info">
+                <h4>Informations principales</h4>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Surface</span>
+                        <span class="info-value">${property.surface} m²</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Chambres</span>
+                        <span class="info-value">${property.chambres}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Salles de bain</span>
+                        <span class="info-value">${property.salles_de_bain}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Étage</span>
+                        <span class="info-value">${property.etage || 'Non spécifié'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Année construction</span>
+                        <span class="info-value">${property.annee_construction || 'Non spécifiée'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Code postal</span>
+                        <span class="info-value">${property.code_postal || 'Non spécifié'}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Description -->
+            <div class="details-description">
+                <h4>Description</h4>
+                <p>${property.description || 'Aucune description disponible.'}</p>
+            </div>
+            
+            <!-- Caractéristiques -->
+            ${caracteristiques.length > 0 ? `
+            <div class="details-features">
+                <h4>Caractéristiques</h4>
+                <div class="features-list">
+                    ${caracteristiques.map(feature => `
+                        <span class="feature-tag">${feature.trim()}</span>
+                    `).join('')}
+                </div>
+            </div>
+            ` : ''}
+            
+            <!-- Métadonnées -->
+            <div class="details-metadata">
+                <div class="metadata-item">
+                    <span class="metadata-label">Date de création:</span>
+                    <span class="metadata-value">${new Date(property.date_creation).toLocaleDateString('fr-FR')}</span>
+                </div>
+                ${property.date_modification ? `
+                <div class="metadata-item">
+                    <span class="metadata-label">Dernière modification:</span>
+                    <span class="metadata-value">${new Date(property.date_modification).toLocaleDateString('fr-FR')}</span>
+                </div>
+                ` : ''}
+            </div>
+        </div>
+    `;
+    
+    // Stocker l'ID du bien pour la modification
+    detailsContent.dataset.currentPropertyId = property.id;
+}
+
+// Fermer le modal de détails
+function closePropertyDetailsModal() {
+    document.getElementById('propertyDetailsModal').style.display = 'none';
+}
+
+// Modifier le bien depuis les détails
+function editPropertyFromDetails() {
+    const propertyId = document.getElementById('propertyDetailsContent').dataset.currentPropertyId;
+    if (propertyId) {
+        closePropertyDetailsModal();
+        editProperty(propertyId);
+    }
+}
+
+// Lightbox pour les images (optionnel)
+function openImageLightbox(imageUrl) {
+    // Implémentation simple d'une lightbox
+    const lightbox = document.createElement('div');
+    lightbox.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+        cursor: pointer;
+    `;
+    
+    lightbox.innerHTML = `
+        <img src="${imageUrl}" style="max-width: 90%; max-height: 90%; object-fit: contain;">
+    `;
+    
+    lightbox.onclick = () => document.body.removeChild(lightbox);
+    document.body.appendChild(lightbox);
 }

@@ -5,13 +5,84 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <style>
+        /* Styles pour le bouton Site Public */
+        .front-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            margin-right: 15px;
+        }
+
+        .front-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+
+        .front-btn .btn-icon {
+            font-size: 1.1rem;
+        }
+
+        .front-btn .btn-text {
+            white-space: nowrap;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .front-btn .btn-text {
+                display: none;
+            }
+            
+            .front-btn {
+                padding: 10px;
+                margin-right: 10px;
+            }
+        }
+
+        /* Amélioration des cartes de statistiques */
+        .stat-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        /* Animation pour les valeurs qui changent */
+        @keyframes countUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-value.updated {
+            animation: countUp 0.5s ease;
+        }
+
+        /* Correction pour l'élément Dashboard actif */
+        .nav-item.active {
+            background: rgba(22, 160, 133, 0.1);
+            border-left: 4px solid #16a085;
+        }
+    </style>
 </head>
 <body>
     <div class="sidebar">
         <div class="logo-section">
             <h2>🏠 ImmoPro</h2>
             <div class="user-profile">
-                <div class="avatar">N</div>
+                <div class="avatar">{{ username[0] if username else 'A' }}</div>
                 <div class="user-info">
                     <span class="username">{{ username }}</span>
                     <span class="role">Administrateur</span>
@@ -20,15 +91,52 @@
         </div>
         
         <ul class="nav-menu">
-            <li class="nav-item active">🏠 Dashboard</li>
-            <li class="nav-item" onclick="window.location.href='/admin/clients'">👤 Gestion Clients</li>
-            <li class="nav-item" onclick="window.location.href='/admin/properties'">🏘️ Gestion Biens</li>
-            <li class="nav-item" onclick="window.location.href='/admin/appointments'">📅 Rendez-vous</li>
-            <li class="nav-item" onclick="window.location.href='/admin/transactions'">💰 Transactions</li>
-            <li class="nav-item" onclick="window.location.href='/admin/contracts'">📋 Contrats</li>
-            <li class="nav-item" onclick="window.location.href='/admin/agencies'">🏢 Agences</li>
-            <li class="nav-item" onclick="window.location.href='/admin/settings'">⚙️ Paramètres</li>
-            <li class="nav-item logout" onclick="logout()">⏻ Déconnexion</li>
+            <!-- Dashboard reste sur la même page -->
+            <li class="nav-item active">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-text">Dashboard</span>
+            </li>
+            
+            <!-- Les autres pages font une redirection -->
+            <li class="nav-item" onclick="window.location.href='/admin/clients'">
+                <span class="nav-icon">👤</span>
+                <span class="nav-text">Gestion Clients</span>
+            </li>
+            <li class="nav-item" onclick="window.location.href='/admin/properties'">
+                <span class="nav-icon">🏘️</span>
+                <span class="nav-text">Gestion Biens</span>
+            </li>
+            <li class="nav-item" onclick="window.location.href='/admin/appointments'">
+                <span class="nav-icon">📅</span>
+                <span class="nav-text">Rendez-vous</span>
+            </li>
+            <li class="nav-item" onclick="window.location.href='/admin/transactions'">
+                <span class="nav-icon">💰</span>
+                <span class="nav-text">Transactions</span>
+            </li>
+            <li class="nav-item" onclick="window.location.href='/admin/contracts'">
+                <span class="nav-icon">📋</span>
+                <span class="nav-text">Contrats</span>
+            </li>
+            <li class="nav-item" onclick="window.location.href='/admin/agencies'">
+                <span class="nav-icon">🏢</span>
+                <span class="nav-text">Agences</span>
+            </li>
+            <li class="nav-item" onclick="window.location.href='/admin/settings'">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-text">Paramètres</span>
+            </li>
+            
+            <!-- Bouton Site Public dans la sidebar -->
+            <li class="nav-item" onclick="goToFrontend()">
+                <span class="nav-icon">🌐</span>
+                <span class="nav-text">Site Public</span>
+            </li>
+            
+            <li class="nav-item logout" onclick="logout()">
+                <span class="nav-icon">⏻</span>
+                <span class="nav-text">Déconnexion</span>
+            </li>
         </ul>
 
         <div class="support-box">
@@ -47,13 +155,22 @@
                 <p class="welcome-text">Vue d'ensemble de votre activité</p>
             </div>
             <div class="nav-right">
+                <!-- Bouton pour aller au front -->
+                <button class="front-btn" onclick="goToFrontend()" title="Aller au site public">
+                    <span class="btn-icon">🌐</span>
+                    <span class="btn-text">Site Public</span>
+                </button>
+                
                 <div class="search-box">
-                    <input type="text" placeholder="Rechercher...">
+                    <input type="text" id="globalSearch" placeholder="Rechercher...">
                     <span>🔍</span>
                 </div>
-                <div class="notifications">🔔 <span class="notification-badge">3</span></div>
+                <div class="notifications">
+                    <span class="notification-icon">🔔</span>
+                    <span class="notification-badge">3</span>
+                </div>
                 <div class="profile-menu">
-                    <div class="profile-avatar">N</div>
+                    <div class="profile-avatar">{{ username[0] if username else 'A' }}</div>
                 </div>
             </div>
         </div>
@@ -63,11 +180,12 @@
             <div class="welcome-banner">
                 <h1>Bonjour {{ username }} ! 🌟</h1>
                 <p>Bienvenue sur votre tableau de bord administrateur</p>
+                <div class="current-time" id="currentTime"></div>
             </div>
 
             <!-- Statistiques en temps réel -->
             <div class="stats-grid">
-                <div class="stat-card total-users">
+                <div class="stat-card total-users" onclick="window.location.href='/admin/clients'">
                     <div class="card-header">
                         <h3>Total Utilisateurs</h3>
                         <div class="card-icon">👥</div>
@@ -79,7 +197,7 @@
                     </div>
                 </div>
 
-                <div class="stat-card total-properties">
+                <div class="stat-card total-properties" onclick="window.location.href='/admin/properties'">
                     <div class="card-header">
                         <h3>Total Biens</h3>
                         <div class="card-icon">🏘️</div>
@@ -91,7 +209,7 @@
                     </div>
                 </div>
 
-                <div class="stat-card active-properties">
+                <div class="stat-card active-properties" onclick="window.location.href='/admin/properties?filter=available'">
                     <div class="card-header">
                         <h3>Biens Disponibles</h3>
                         <div class="card-icon">✅</div>
@@ -103,7 +221,7 @@
                     </div>
                 </div>
 
-                <div class="stat-card new-clients">
+                <div class="stat-card new-clients" onclick="window.location.href='/admin/clients?filter=new'">
                     <div class="card-header">
                         <h3>Nouveaux Clients</h3>
                         <div class="card-icon">🆕</div>
@@ -120,6 +238,7 @@
                 <div class="chart-card">
                     <div class="chart-header">
                         <h3>Activité Récente</h3>
+                        <button class="refresh-btn" onclick="loadRecentActivity()">🔄</button>
                     </div>
                     <div class="activity-list" id="recentActivity">
                         <div class="loading-spinner">Chargement des activités...</div>
@@ -129,6 +248,7 @@
                 <div class="chart-card">
                     <div class="chart-header">
                         <h3>Statut des Biens</h3>
+                        <button class="refresh-btn" onclick="loadPropertiesChart()">🔄</button>
                     </div>
                     <canvas id="propertiesChart" width="400" height="300"></canvas>
                 </div>
@@ -148,6 +268,7 @@
                 <div class="progress-card">
                     <div class="card-header">
                         <h3>Performance</h3>
+                        <button class="refresh-btn" onclick="updatePerformance()">🔄</button>
                     </div>
                     <div class="progress-circle">
                         <div class="circle-progress" data-progress="75">
@@ -155,11 +276,22 @@
                         </div>
                         <p>Taux de conversion</p>
                     </div>
+                    <div class="performance-stats">
+                        <div class="perf-stat">
+                            <span class="perf-label">Ventes ce mois</span>
+                            <span class="perf-value">12</span>
+                        </div>
+                        <div class="perf-stat">
+                            <span class="perf-label">Revenus</span>
+                            <span class="perf-value">45K €</span>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="goals-card">
                     <div class="card-header">
                         <h3>Objectifs du Mois</h3>
+                        <button class="refresh-btn" onclick="updateGoals()">🔄</button>
                     </div>
                     <div class="goals-list">
                         <div class="goal-item">
@@ -205,6 +337,299 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    <script>
+        // Aller au site frontend - VERS LE PORT 5174 DU FRONTEND REACT
+        function goToFrontend() {
+            // URL absolue vers votre frontend React sur le port 5174
+            const frontendUrl = 'http://localhost:5174/';
+            
+            console.log('Redirection vers:', frontendUrl);
+            
+            // Ouvrir dans un nouvel onglet
+            window.open(frontendUrl, '_blank');
+            
+            // Alternative: ouvrir dans le même onglet
+            // window.location.href = frontendUrl;
+        }
+
+        // Fonction de déconnexion
+        function logout() {
+            if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+                window.location.href = '/admin/logout';
+            }
+        }
+
+        // Mettre à jour l'heure actuelle
+        function updateCurrentTime() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            document.getElementById('currentTime').textContent = 
+                now.toLocaleDateString('fr-FR', options);
+        }
+
+        // Charger les statistiques
+        async function loadStats() {
+            try {
+                // Données simulées en attendant l'API
+                const mockData = {
+                    totalUsers: 156,
+                    totalProperties: 89,
+                    availableProperties: 45,
+                    newClients: 23,
+                    usersGrowth: "+12%",
+                    propertiesGrowth: "+8%",
+                    availableGrowth: "+5%",
+                    clientsGrowth: "+15%"
+                };
+                
+                // Mettre à jour les valeurs avec animation
+                updateStatValue('totalUsers', mockData.totalUsers);
+                updateStatValue('totalProperties', mockData.totalProperties);
+                updateStatValue('availableProperties', mockData.availableProperties);
+                updateStatValue('newClients', mockData.newClients);
+                
+                // Mettre à jour les tendances
+                document.getElementById('usersGrowth').textContent = mockData.usersGrowth;
+                document.getElementById('propertiesGrowth').textContent = mockData.propertiesGrowth;
+                document.getElementById('availableGrowth').textContent = mockData.availableGrowth;
+                document.getElementById('clientsGrowth').textContent = mockData.clientsGrowth;
+                
+            } catch (error) {
+                console.error('Erreur chargement stats:', error);
+            }
+        }
+
+        // Mettre à jour une valeur statistique avec animation
+        function updateStatValue(elementId, newValue) {
+            const element = document.getElementById(elementId);
+            element.textContent = newValue;
+            element.classList.add('updated');
+            setTimeout(() => element.classList.remove('updated'), 500);
+        }
+
+        // Charger l'activité récente
+        async function loadRecentActivity() {
+            try {
+                // Données simulées
+                const mockActivities = [
+                    {
+                        type: 'user',
+                        text: 'Nouveau client inscrit: Jean Dupont',
+                        time: 'Il y a 5 min'
+                    },
+                    {
+                        type: 'property',
+                        text: 'Nouveau bien ajouté: Appartement Paris',
+                        time: 'Il y a 15 min'
+                    },
+                    {
+                        type: 'sale',
+                        text: 'Vente conclue: Villa Nice - 450K €',
+                        time: 'Il y a 1 heure'
+                    },
+                    {
+                        type: 'appointment',
+                        text: 'Rendez-vous planifié avec Marie Martin',
+                        time: 'Il y a 2 heures'
+                    },
+                    {
+                        type: 'contract',
+                        text: 'Nouveau contrat signé pour location',
+                        time: 'Il y a 3 heures'
+                    }
+                ];
+                
+                const activityList = document.getElementById('recentActivity');
+                activityList.innerHTML = mockActivities.map(activity => `
+                    <div class="activity-item">
+                        <div class="activity-icon">${getActivityIcon(activity.type)}</div>
+                        <div class="activity-content">
+                            <p class="activity-text">${activity.text}</p>
+                            <span class="activity-time">${activity.time}</span>
+                        </div>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Erreur chargement activité:', error);
+                document.getElementById('recentActivity').innerHTML = 
+                    '<div class="error-message">Erreur de chargement</div>';
+            }
+        }
+
+        // Obtenir l'icône selon le type d'activité
+        function getActivityIcon(type) {
+            const icons = {
+                'user': '👤',
+                'property': '🏠',
+                'sale': '💰',
+                'appointment': '📅',
+                'contract': '📋'
+            };
+            return icons[type] || '🔔';
+        }
+
+        // Charger le graphique des biens
+        let propertiesChart = null;
+        async function loadPropertiesChart() {
+            try {
+                // Données simulées
+                const mockData = {
+                    labels: ['Disponible', 'Vendu', 'En attente', 'Loué'],
+                    values: [45, 20, 15, 9]
+                };
+                
+                const ctx = document.getElementById('propertiesChart').getContext('2d');
+                
+                if (propertiesChart) {
+                    propertiesChart.destroy();
+                }
+                
+                propertiesChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: mockData.labels,
+                        datasets: [{
+                            data: mockData.values,
+                            backgroundColor: [
+                                '#16a085',
+                                '#f39c12',
+                                '#e74c3c',
+                                '#3498db'
+                            ],
+                            borderWidth: 2,
+                            borderColor: '#fff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 20,
+                                    usePointStyle: true
+                                }
+                            }
+                        },
+                        cutout: '70%'
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Erreur chargement graphique:', error);
+            }
+        }
+
+        // Charger les derniers utilisateurs
+        async function loadRecentUsers() {
+            try {
+                // Données simulées
+                const mockUsers = [
+                    {
+                        name: 'Jean Dupont',
+                        email: 'jean.dupont@email.com',
+                        joinDate: 'Aujourd\'hui'
+                    },
+                    {
+                        name: 'Marie Martin',
+                        email: 'marie.martin@email.com',
+                        joinDate: 'Hier'
+                    },
+                    {
+                        name: 'Pierre Durand',
+                        email: 'pierre.durand@email.com',
+                        joinDate: 'Il y a 2 jours'
+                    },
+                    {
+                        name: 'Sophie Lambert',
+                        email: 'sophie.lambert@email.com',
+                        joinDate: 'Il y a 3 jours'
+                    },
+                    {
+                        name: 'Thomas Moreau',
+                        email: 'thomas.moreau@email.com',
+                        joinDate: 'Il y a 4 jours'
+                    }
+                ];
+                
+                const usersList = document.getElementById('recentUsers');
+                usersList.innerHTML = mockUsers.map(user => `
+                    <div class="user-item">
+                        <div class="user-avatar">${user.name.charAt(0)}</div>
+                        <div class="user-info">
+                            <span class="user-name">${user.name}</span>
+                            <span class="user-email">${user.email}</span>
+                        </div>
+                        <span class="user-date">${user.joinDate}</span>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Erreur chargement utilisateurs:', error);
+                document.getElementById('recentUsers').innerHTML = 
+                    '<div class="error-message">Erreur de chargement</div>';
+            }
+        }
+
+        // Mettre à jour la performance
+        function updatePerformance() {
+            // Simulation de mise à jour des données de performance
+            const progressValue = Math.floor(Math.random() * 30) + 70; // 70-100%
+            document.querySelector('.progress-value').textContent = progressValue + '%';
+            document.querySelector('.circle-progress').style.background = 
+                `conic-gradient(#16a085 ${progressValue * 3.6}deg, #ecf0f1 0deg)`;
+        }
+
+        // Mettre à jour les objectifs
+        function updateGoals() {
+            // Simulation de mise à jour des objectifs
+            const goals = document.querySelectorAll('.goal-item');
+            goals.forEach(goal => {
+                const newProgress = Math.floor(Math.random() * 40) + 40; // 40-80%
+                const progressFill = goal.querySelector('.progress-fill');
+                const progressText = goal.querySelector('.goal-progress span');
+                
+                progressFill.style.width = newProgress + '%';
+                progressText.textContent = newProgress + '%';
+            });
+        }
+
+        // Recherche globale
+        document.getElementById('globalSearch').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            if (searchTerm.length > 2) {
+                console.log('Recherche en cours:', searchTerm);
+                // Implémenter la recherche ici
+            }
+        });
+
+        // Initialisation au chargement
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCurrentTime();
+            loadStats();
+            loadRecentActivity();
+            loadPropertiesChart();
+            loadRecentUsers();
+            
+            // Mettre à jour l'heure toutes les minutes
+            setInterval(updateCurrentTime, 60000);
+            
+            // Rafraîchir les stats toutes les 5 minutes
+            setInterval(loadStats, 300000);
+        });
+
+        // Gestion des erreurs globales
+        window.addEventListener('error', function(e) {
+            console.error('Erreur globale:', e.error);
+        });
+    </script>
 </body>
 </html>

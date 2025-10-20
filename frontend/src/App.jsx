@@ -13,6 +13,7 @@ import Acheter from "./pages/Acheter.jsx";
 import Login from "./pages/Login.jsx";
 import Profile from "./pages/Profile.jsx";
 import Predictor from "./Component/Predictor.jsx";
+import Chatbot from "./Component/Chatbot.jsx";
 
 function App() {
   return (
@@ -29,6 +30,8 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/estimate" element={<Estimate />} />
+          <Route path="/chatbot" element={<Chatbot />} />
+
         </Routes>
       </Router>
     </AuthProvider>

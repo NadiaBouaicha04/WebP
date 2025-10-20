@@ -31,7 +31,7 @@ def get_property_image(filename):
     try:
         return send_from_directory(get_upload_folder(), filename)
     except Exception as e:
-        print(f"❌ Erreur chargement image {filename}: {e}")
+        print(f" Erreur chargement image {filename}: {e}")
         return jsonify({"error": "Image non trouvée"}), 404
 
 # Route principale pour récupérer les biens
@@ -79,7 +79,7 @@ def get_properties():
         })
         
     except Exception as e:
-        print(f"❌ Erreur récupération biens: {e}")
+        print(f" Erreur récupération biens: {e}")
         return jsonify({
             "success": False,
             "error": str(e)
@@ -94,8 +94,8 @@ def create_property():
         
         properties_collection = get_properties_collection()
         
-        print(f"📥 Données reçues: {data}")
-        print(f"📁 Fichiers reçus: {len(files)} images")
+        print(f" Données reçues: {data}")
+        print(f" Fichiers reçus: {len(files)} images")
         
         # Traitement des images
         image_filenames = []
@@ -106,7 +106,7 @@ def create_property():
                 file_path = os.path.join(get_upload_folder(), unique_filename)
                 file.save(file_path)
                 image_filenames.append(unique_filename)
-                print(f"✅ Image sauvegardée: {unique_filename}")
+                print(f" Image sauvegardée: {unique_filename}")
         
         # Préparer les données du bien
         new_property = {
@@ -139,7 +139,7 @@ def create_property():
         }), 201
         
     except Exception as e:
-        print(f"❌ Erreur création bien: {e}")
+        print(f" Erreur création bien: {e}")
         return jsonify({
             'success': False,
             'error': str(e)
@@ -229,3 +229,61 @@ def delete_property(property_id):
             'success': False,
             'error': str(e)
         }), 500
+    # -------------------------------
+# RÉCUPÉRER DÉTAIL D’UN BIEN
+# -------------------------------
+@properties_bp.route('/properties/<property_id>', methods=['GET'])
+def get_property_details(property_id):
+    """Retourne les détails d'un bien immobilier spécifique"""
+    try:
+        # Vérification de l'ID
+        if not ObjectId.is_valid(property_id):
+            return jsonify({'success': False, 'error': 'ID invalide'}), 400
+
+        collection = get_properties_collection()
+        property_data = collection.find_one({'_id': ObjectId(property_id)})
+
+        if not property_data:
+            return jsonify({'success': False, 'error': 'Bien non trouvé'}), 404
+
+        # URLs des images
+        images_urls = [
+            f"http://127.0.0.1:5000/uploads/properties/{img}"
+            for img in property_data.get("images", [])
+        ]
+
+        # Conversion propre des champs
+        caracteristiques = property_data.get("caracteristiques", [])
+        if isinstance(caracteristiques, str):
+            caracteristiques = [c.strip() for c in caracteristiques.split(",") if c.strip()]
+
+        # Gestion des dates
+        date_creation = property_data.get("date_creation", datetime.now())
+        date_modification = property_data.get("date_modification", datetime.now())
+
+        result = {
+            'id': str(property_data['_id']),
+            'titre': property_data.get('titre', ''),
+            'description': property_data.get('description', ''),
+            'type': property_data.get('type', ''),
+            'prix': property_data.get('prix', 0),
+            'surface': property_data.get('surface', 0),
+            'chambres': property_data.get('chambres', 0),
+            'salles_de_bain': property_data.get('salles_de_bain', 1),
+            'ville': property_data.get('ville', ''),
+            'adresse': property_data.get('adresse', ''),
+            'code_postal': property_data.get('code_postal', ''),
+            'etage': property_data.get('etage', ''),
+            'annee_construction': property_data.get('annee_construction', ''),
+            'caracteristiques': caracteristiques,
+            'images': images_urls,
+            'statut': property_data.get('statut', 'disponible'),
+            'date_creation': date_creation.isoformat() if isinstance(date_creation, datetime) else date_creation,
+            'date_modification': date_modification.isoformat() if isinstance(date_modification, datetime) else date_modification
+        }
+
+        return jsonify({'success': True, 'property': result}), 200
+
+    except Exception as e:
+        print(f"Erreur détails bien: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
